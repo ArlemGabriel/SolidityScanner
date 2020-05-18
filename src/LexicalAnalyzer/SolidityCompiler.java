@@ -5,6 +5,8 @@
  */
 package LexicalAnalyzer;
 
+import java.io.File;
+
 /**
  *
  * @author Arlem
@@ -15,7 +17,13 @@ public class SolidityCompiler {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        String route = "C:/Users/Arlem/Desktop/Git/SolidityScanner/src/LexicalAnalyzer/Lexer.flex";
+        
     }
+    public static void generateScanner(String route){
+        File file = new File(route);
+        //JFlex.Main.generate(file);
+    }
+    
     
 }
