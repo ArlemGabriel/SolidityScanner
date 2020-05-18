@@ -9,3 +9,6 @@ package LexicalAnalyzer
 
 %%
 //Lexical Rules
+
+CONSSTRING \"[^"\\\n]*((?:\\((xNN)|(uNNNN))[^"\\\n]*)|(?:\\[n"][^"\\]*)|(?:\\\\[^"\\\n]*))*\"|\'[^"\\\n]*((?:\\((xNN)|(uNNNN))[^"\\\n]*)|(?:\\[n"][^"\\]*)|(?:\\\\[^"\\\n]*))*\'
+CONSINTEGERHEX  hex("[0-9|A-F|a-f]+"|'[0-9|A-F|a-f]+')
