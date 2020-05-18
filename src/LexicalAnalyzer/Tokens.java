@@ -23,7 +23,7 @@ public enum Tokens {
     PUBLIC,RETURN,RETURNS,SOLIDITY,STRING,STRUCT,THIS,
     TRUE,UFIXED,UINT,VAR,VIEW,WHILE,UINT8,UINT32,INT16,BYTES4,BYTES8,
     //Tokens for reserved words of type TRANSAC
-    BALANCE,CALL,CALLCODE,DELETEGATECALL,SEND,TRANSFER,
+    BALANCE,CALL,CALLCODE,DELEGATECALL,SEND,TRANSFER,
     //Tokens for reserved words of type UNITS
     DAYS,ETHER,FINNEY,HOURS,MINUTES,SECONDS,SZABO,WEEKS,WEI,YEARS,
     //Tokens for literals
@@ -33,11 +33,11 @@ public enum Tokens {
     LOGICNEGATION,LOGICAND,ARITMETICEXOR,ARITMETICEQUAL,LOGICDISTINCT,LOGICOR,ARITMETICLESSEQUALTHAN,
     //    <                     >=                        >               &              |  
     ARITMETICLESSTHAN, ARITMETICGREATEREQUALTHAN,ARITMETICGREATERTHAN,ARITMETICAND,ARITMETICOR,
-    //    ~            +       -                *        /       %         **             <<      >>        =     ,      ;      .
+    //    ~            +       -                *        /       %         **            >>        <<        =     ,      ;      .
     ARITMETICNEGATION,SUM,SUBSTRACTION,MULTIPLICATION,DIVISION,MODULE,EXPONENTIATION,SHIFTRIGHT,SHIFTLEFT,EQUAL,COMMA,SEMICOLON,DOT,
     // {         }      (        )     [      ]        ?        : 
     LBRACKET,RBRACKET,LPAREN,RPAREN,LBRACE,RBRACE,QUESTIONSIGN,COLON,
     //+=        -=         *=        /=
-    SUMEQUAL,SUBSEQUAL,MULTIEQUAL,DIVIEQUAL
+    SUMEQUAL,SUBEQUAL,MULTIEQUAL,DIVEQUAL
     //Tokens para errores
 }
