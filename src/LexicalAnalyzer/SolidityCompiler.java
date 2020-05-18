@@ -5,7 +5,6 @@
  */
 package LexicalAnalyzer;
 
-import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jflex.exceptions.SilentExit;

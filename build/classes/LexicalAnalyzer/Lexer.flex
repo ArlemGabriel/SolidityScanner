@@ -9,7 +9,9 @@
 //*****************************************
     %class Scanner
     %type Tokens
-
+%{
+    public String lexeme;
+%}
     ADDRESS = address
     AS = as
     BOOL = bool
@@ -112,9 +114,7 @@
     CONSINTEGER = [0-9]+
     CONSREAL = [0-9]*[.][0-9]+|[0-9]+[.][0-9]*
     CONSSCIENT = [-]?[0-9]+([.][0-9]+)?[e][-]?[0-9]+
-%{
-    public String lexeme;
-%}
+
 
 %%
 //*****************************************
