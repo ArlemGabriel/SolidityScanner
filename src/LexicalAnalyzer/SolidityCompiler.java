@@ -6,6 +6,9 @@
 package LexicalAnalyzer;
 
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jflex.exceptions.SilentExit;
 
 /**
  *
@@ -18,11 +21,15 @@ public class SolidityCompiler {
      */
     public static void main(String[] args) {
         String route = "C:/Users/Arlem/Desktop/Git/SolidityScanner/src/LexicalAnalyzer/Lexer.flex";
-        
+        try {
+            generateScanner(route);
+        } catch (SilentExit ex) {
+            Logger.getLogger(SolidityCompiler.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-    public static void generateScanner(String route){
-        File file = new File(route);
-        //JFlex.Main.generate(file);
+    public static void generateScanner(String route) throws SilentExit{
+        String[] file = new String[] {route};
+        jflex.Main.generate(file);
     }
     
     

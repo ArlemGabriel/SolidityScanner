@@ -10,6 +10,9 @@ package LexicalAnalyzer;
  * @author Arlem
  */
 public enum Tokens {
+
+    RESERVADAS,
+    ERROR,
     //Tokens for comments
     MULTICOMMENT,SINGLECOMMENT,
     //Tokens for reserved words
