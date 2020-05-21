@@ -5,14 +5,18 @@
  */
 package LexicalAnalyzer;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Arlem
  */
 public class TokenOccurrence extends Token{
     private int occurrences;
+    private ArrayList<ArrayList<Integer>> totaloccurrences;
 
     public TokenOccurrence() {
+        totaloccurrences = new ArrayList<>();
     }
     
 
@@ -22,6 +26,18 @@ public class TokenOccurrence extends Token{
 
     public void setOccurrences(int occurrences) {
         this.occurrences = occurrences;
+    }
+    public void insertOccurrence(int line,int occurrence){
+        ArrayList<Integer> newoccurrence = new ArrayList<>();
+        newoccurrence.add(line);
+        newoccurrence.add(occurrence);
+        totaloccurrences.add(newoccurrence);
+    }
+    public ArrayList<ArrayList<Integer>> getTotalOccurrences(){
+        return totaloccurrences;
+    }
+    public ArrayList<Integer> getOccurrence(int position){
+        return totaloccurrences.get(position);
     }
     
 }

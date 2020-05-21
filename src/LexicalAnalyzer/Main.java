@@ -30,6 +30,7 @@ public class Main {
         getTokens();
         countTokens();
         printOccurrencesObjects();
+        countTotalTokensOccurrences();
     }
     public static void getScannerRoute(){
         scannerroute = "C:/Users/Arlem/Desktop/Git/SolidityScanner/src/LexicalAnalyzer/Lexer.flex";
@@ -62,7 +63,7 @@ public class Main {
                     EOF = true;
                     
                 }else{
-                    Token token = new Token(/*readedtoken.toString(), scanner.line(),scanner.column(),scanner.lexeme*/);
+                    Token token = new Token();
                     token.setType(readedtoken.toString());
                     token.setValue(scanner.lexeme);
                     token.setLinenumber(scanner.line());
@@ -120,6 +121,44 @@ public class Main {
             }
         }
         return query;
+    }
+    public static void countTotalTokensOccurrences(){
+        ArrayList<TokenOccurrence> tokenstoremove = new ArrayList<>();
+        ArrayList<TokenOccurrence> totaloccurrences = new ArrayList<>();
+        TokenOccurrence temptoken;
+        
+        while(!tokensoccurrences.isEmpty()){
+            temptoken = tokensoccurrences.get(0);
+            int size = tokensoccurrences.size();
+            for(int i=0;i<size;i++){
+                
+                if(temptoken.getValue().equals(tokensoccurrences.get(i).getValue())){
+                    System.out.print("\nVALUE: "+tokensoccurrences.get(i).getValue()+"\n");
+                    System.out.print("LINENUMBER: "+tokensoccurrences.get(i).getLinenumber()+"\n");
+                    System.out.print("OCCURRENCES: "+tokensoccurrences.get(i).getOccurrences()+"\n");
+                    System.out.print("-------------------------------------------------------------");
+                    temptoken.insertOccurrence(tokensoccurrences.get(i).getLinenumber(), tokensoccurrences.get(i).getOccurrences());
+                    tokenstoremove.add(tokensoccurrences.get(i));
+                }
+            }
+            totaloccurrences.add(temptoken);
+            System.out.print("\nSALI DEL FOR\n");
+            for(TokenOccurrence tokentoremove : tokenstoremove){
+                tokensoccurrences.remove(tokentoremove);
+            }
+            tokenstoremove.clear();
+        }
+        System.out.print("TOTAL NUMBER OF TOKENS: "+totaloccurrences.size()+"\n");
+        for(TokenOccurrence total: totaloccurrences){
+            System.out.print("VALOR: "+total.getValue()+"\n");
+            int size = total.getTotalOccurrences().size();
+            for(int i =0;i<size;i++){
+                System.out.print(total.getOccurrence(i));
+            }
+            
+        }
+        //System.out.print(totaloccurrences.get(0).getTotalOccurrences().size());
+        //System.out.print(totaloccurrences.get(0).getTotalOccurrences().size());
     }
     public static void printOccurrencesObjects(){
         for (TokenOccurrence token : tokensoccurrences) {

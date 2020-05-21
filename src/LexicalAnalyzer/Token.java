@@ -15,11 +15,7 @@ public class Token {
     private int columnnumber;
     private String value;
     
-    Token(/*String pType, int pLinenumber, int pColumnnumber,String pValue*/){
-        /*type = pType;
-        linenumber = pLinenumber;
-        columnnumber = pColumnnumber;
-        value = pValue;*/
+    Token(){
     }
 
     public String getType() {
