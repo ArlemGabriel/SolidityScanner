@@ -27,16 +27,6 @@ public class Main {
         getTokensFileRoute();
         readTokensFile();
         getTokens();
-        /*FilesReader newfile = new FilesReader("C:\\Archivo.txt");
-        BufferedReader br;
-        String route = "C:/Users/Arlem/Desktop/Git/SolidityScanner/src/LexicalAnalyzer/Lexer.flex";
-        try {
-            generateScanner(route);
-            getTokens(br);
-            
-        } catch (SilentExit ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
     }
     public static void getScannerRoute(){
         scannerroute = "C:/Users/Arlem/Desktop/Git/SolidityScanner/src/LexicalAnalyzer/Lexer.flex";
@@ -65,7 +55,6 @@ public class Main {
              Tokens token;
             try {
                 token = scanner.yylex();
-                System.out.print(token);
              if(token == null){
                  EOF = true;
              }else{
