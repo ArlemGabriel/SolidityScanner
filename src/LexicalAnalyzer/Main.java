@@ -21,6 +21,7 @@ public class Main {
     static String scannerroute;
     static FilesReader newtokensfile;
     static BufferedReader tokensbuffer;
+    static Structure structure = new Structure();
     public static void main(String[] args) {
         getScannerRoute();
         generateScanner();
@@ -50,27 +51,22 @@ public class Main {
     
     public static void getTokens(){
         Scanner scanner = new Scanner(tokensbuffer);
-         Boolean EOF = false;
-         while(EOF == false){
-             Tokens token;
+        Boolean EOF = false;
+        while(EOF == false){
+            Tokens readedtoken;
             try {
-                token = scanner.yylex();
-             if(token == null){
-                 EOF = true;
-             }else{
-                 switch(token){
-                     case ERROR:
-                         //System.out.print("ERROR ENCONTRADO");
-                     case ID:
-                        // System.out.print("ID: "+scanner.yytext());
-                     default:
-                         //System.out.print("DEFAULT");
-                 }
-             }
-            } catch (IOException ex) {
+                readedtoken = scanner.yylex();
+                if(readedtoken == null){
+                    EOF = true;
+                    
+                }else{
+                    Token token = new Token(readedtoken.toString(), scanner.line(),scanner.column(),scanner.lexeme);
+                    structure.insertToken(token);
+                }
+            }catch (IOException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-         }
+            } 
+        }
+        structure.printTokens();
     }
 }

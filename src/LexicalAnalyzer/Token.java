@@ -11,9 +11,16 @@ package LexicalAnalyzer;
  */
 public class Token {
     private String type;
-    private String linenumber;
-    private String columnnumber;
+    private int linenumber;
+    private int columnnumber;
     private String value;
+    
+    Token(String pType, int pLinenumber, int pColumnnumber,String pValue){
+        type = pType;
+        linenumber = pLinenumber;
+        columnnumber = pColumnnumber;
+        value = pValue;
+    }
 
     public String getType() {
         return type;
@@ -23,19 +30,19 @@ public class Token {
         this.type = type;
     }
 
-    public String getLinenumber() {
+    public int getLinenumber() {
         return linenumber;
     }
 
-    public void setLinenumber(String linenumber) {
+    public void setLinenumber(int linenumber) {
         this.linenumber = linenumber;
     }
 
-    public String getColumnnumber() {
+    public int getColumnnumber() {
         return columnnumber;
     }
 
-    public void setColumnnumber(String columnnumber) {
+    public void setColumnnumber(int columnnumber) {
         this.columnnumber = columnnumber;
     }
 

@@ -9,8 +9,16 @@
 //*****************************************
     %class Scanner
     %type Tokens
+    %line
+    %column
 %{
     public String lexeme;
+    public int line(){
+        return yyline;
+    }
+    public int column(){
+        return yycolumn;
+    }
 %}
     ADDRESS = address
     AS = as
@@ -110,7 +118,7 @@
     SINGLECOMMENT = \\\\[^\n\\]+
     MULTICOMMENT = \/\*\*([^*]|(\*+[^*/]))*\*+\/
     ID = [a-zA-Z]{1}[a-zA-Z|0-9|_]{0,30}
-    BLANKSPACE = [ ,\t,\r,\r,\n]+
+    BLANKSPACE = [ ,\t,\r,\n]+
     CONSINTEGER = [0-9]+
     CONSREAL = [0-9]*[.][0-9]+|[0-9]+[.][0-9]*
     CONSSCIENT = [-]?[0-9]+([.][0-9]+)?[e][-]?[0-9]+
@@ -223,7 +231,7 @@
     {CONSSCIENT} {lexeme = yytext();return CONSSCIENT;}
     {ADDRESS} {lexeme = yytext();return ADDRESS;}
     {ADDRESS} {lexeme = yytext();return ADDRESS;}
-    {BLANKSPACE} {/*Ignore*/}
+    {BLANKSPACE} {/*IGNORE*/}
     . {return ERROR;}
 
 
