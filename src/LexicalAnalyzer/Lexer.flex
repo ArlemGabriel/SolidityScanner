@@ -117,7 +117,7 @@
 
     SINGLECOMMENT = \\\\[^\n\\]+
     MULTICOMMENT = \/\*\*([^*]|(\*+[^*/]))*\*+\/
-    ID = [a-zA-Z]{1}[a-zA-Z|0-9|_]{0,30}
+    ID = [a-zA-Z]{1}[a-zA-Z|0-9|_]*
     BLANKSPACE = [ ,\t,\r,\n]+
     CONSINTEGER = [0-9]+
     CONSREAL = [0-9]*[.][0-9]+|[0-9]+[.][0-9]*

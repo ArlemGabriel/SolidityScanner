@@ -18,6 +18,9 @@ public class Structure {
     public void insertToken(Token pToken){
         tokens.add(pToken);
     }
+    public ArrayList<Token> getTokensList(){
+        return tokens;
+    }
     public void printTokens(){        
         for (Token token : tokens) {
             System.out.println("Type: "+token.getType()+" Value: "+token.getValue()+" Line: "+token.getLinenumber()+" Column: "+token.getColumnnumber()+ "\n");
