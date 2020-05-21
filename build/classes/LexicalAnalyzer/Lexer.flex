@@ -2,13 +2,13 @@
 //  IMPORTS AND PACKAGES
 //*****************************************
     package LexicalAnalyzer;
-    import static LexicalAnalyzer.Tokens.*;
+    import static LexicalAnalyzer.TokensEnum.*;
 %%
 //*****************************************
 //  OPTIONS AND DECLARATIONS
 //*****************************************
     %class Scanner
-    %type Tokens
+    %type TokensEnum
     %line
     %column
 %{

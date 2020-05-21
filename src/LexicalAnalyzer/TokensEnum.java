@@ -9,7 +9,7 @@ package LexicalAnalyzer;
  *
  * @author Arlem
  */
-public enum Tokens {
+public enum TokensEnum {
 
     RESERVADAS,
     ERROR,

@@ -6,7 +6,7 @@
 //  IMPORTS AND PACKAGES
 //*****************************************
     package LexicalAnalyzer;
-    import static LexicalAnalyzer.Tokens.*;
+    import static LexicalAnalyzer.TokensEnum.*;
 
 // See https://github.com/jflex-de/jflex/issues/222
 @SuppressWarnings("FallThrough")
@@ -873,7 +873,7 @@ class Scanner {
    * @return the next token.
    * @exception java.io.IOException if any I/O-Error occurs.
    */
-  public Tokens yylex() throws java.io.IOException {
+  public TokensEnum yylex() throws java.io.IOException {
     int zzInput;
     int zzAction;
 
