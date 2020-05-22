@@ -10,14 +10,6 @@ package LexicalAnalyzer;
  * @author Arlem
  */
 public enum TokensEnum {
-
-    RESERVADAS,
-    UNIDENTIFIED_ERROR,
-    INVALID_CHARACTER,
-    ESCAPEERROR,
-    LQUOTEERROR,
-    RQUOTEERROR,
-    INVALID_IDENTIFIER,
     //Tokens for comments
     MULTICOMMENT,SINGLECOMMENT,
     //Tokens for reserved words
@@ -43,6 +35,7 @@ public enum TokensEnum {
     // {         }      (        )     [      ]        ?        : 
     LBRACKET,RBRACKET,LPAREN,RPAREN,LBRACE,RBRACE,QUESTIONSIGN,COLON,
     //+=        -=         *=        /=
-    SUMEQUAL,SUBEQUAL,MULTIEQUAL,DIVEQUAL
+    SUMEQUAL,SUBEQUAL,MULTIEQUAL,DIVEQUAL,
     //Tokens para errores
+    UNIDENTIFIED_ERROR,INVALID_CHARACTER,ESCAPEERROR,LQUOTEERROR,RQUOTEERROR,INVALID_IDENTIFIER
 }
