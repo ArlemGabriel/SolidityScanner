@@ -7,10 +7,10 @@
 //*****************************************
 //  OPTIONS AND DECLARATIONS
 //*****************************************
-    %class Scanner
-    %type TokensEnum
-    %line
-    %column
+%class Scanner
+%type TokensEnum
+%line
+%column
 %{
     public String lexeme;
     public int line(){
@@ -25,7 +25,7 @@
     BOOL = bool
     BREAK = break
     BYTE = byte
-    BYTES = bytes
+    BYTES = (bytes)[1,2,3,4,5,6,7,8]
     CONSTRUCTOR = constructor
     CONTINUE = continue
     CONTRACT = contract
@@ -40,7 +40,6 @@
     HEX = hex
     IF = if
     IMPORT = import
-    INT = int
     INTERNAL = internal
     MAPPING = mapping
     MODIFIER = modifier
@@ -114,7 +113,6 @@
     SUBEQUAL = \-\=
     MULTIEQUAL = \*\=
     DIVEQUAL = \/\=
-    DOLLAR = \$
     SINGLECOMMENT = \\\\[^\n\\]+
     MULTICOMMENT = \/\*\*([^*]|(\*+[^*/]))*\*+\/
     ID = [a-zA-Z]{1}[a-zA-Z|0-9|_]*
@@ -122,10 +120,14 @@
     CONSINTEGER = [0-9]+
     CONSREAL = [0-9]*[.][0-9]+|[0-9]+[.][0-9]*
     CONSSCIENT = [-]?[0-9]+([.][0-9]+)?[e][-]?[0-9]+
+    CONSINTEGERHEX = hex("[0-9|A-F|a-f]+"|'[0-9|A-F|a-f]+')
+    CONSSTRING = (\"[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\]*)|(\\\\[^\'\"\\\n]*))*\")|(\'[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\]*)|(\\\\[^\'\"\\\n]*))*\')
     INVALIDCHAR = ['|`|@|#|"|"|\\|:|_|$|¡|¿|´]{1}|[;]{2}
     INVALIDID = [0-9|_]+[a-zA-Z|_]+[a-zA-Z|_|0-9]*
-
-
+    LQUOTEERROR = ([^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\]*)|(\\\\[^\'\"\\\n]*))*\")|([^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\]*)|(\\\\[^\'\"\\\n]*))*\')
+    RQUOTEERROR = (\"[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\]*)|(\\\\[^\'\"\\\n]*))*)|(\'[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\]*)|(\\\\[^\'\"\\\n]*))*)
+    INTWITHSIGN = (uint|int)(8|16|32|64|128|256)
+    INTWITHOUTSIGN = (uint|int)
 %%
 //*****************************************
 //  LEXICAL RULES
@@ -150,7 +152,6 @@
     {HEX} {lexeme = yytext();return HEX;}
     {IF} {lexeme = yytext();return IF;}
     {IMPORT} {lexeme = yytext();return IMPORT;}
-    {INT} {lexeme = yytext();return INT;}
     {INTERNAL} {lexeme = yytext();return INTERNAL;}
     {MAPPING} {lexeme = yytext();return MAPPING;}
     {MODIFIER} {lexeme = yytext();return MODIFIER;}
@@ -226,9 +227,14 @@
     {DIVEQUAL} {lexeme = yytext();return DIVEQUAL;}
 
     {INVALIDID} {return INVALID_IDENTIFIER;}
-
+    {LQUOTEERROR} {return LQUOTEERROR;}
+    {RQUOTEERROR} {return RQUOTEERROR;}
+    {CONSSTRING} {lexeme = yytext();return CONSSTRING;}
     {SINGLECOMMENT} {lexeme = yytext();return SINGLECOMMENT;}
     {MULTICOMMENT} {lexeme = yytext();return MULTICOMMENT;}
+    {INTWITHSIGN} {lexeme = yytext();return INTWITHSIGN;}
+    {INTWITHOUTSIGN} {lexeme = yytext();return INTWITHOUTSIGN;}
+    {CONSINTEGERHEX} {lexeme = yytext();return CONSINTEGERHEX;}
     {ID} {lexeme = yytext();return ID;}
     {CONSINTEGER} {lexeme = yytext();return CONSINTEGER;}
     {CONSREAL} {lexeme = yytext();return CONSREAL;}
@@ -238,6 +244,7 @@
     {BLANKSPACE} {/*IGNORE*/}
     
     {INVALIDCHAR} {return INVALID_CHARACTER;}
+
     . {return UNIDENTIFIED_ERROR;}
 
 
