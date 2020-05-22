@@ -24,6 +24,8 @@ public class Main {
     static Structure structure = new Structure();
     static ArrayList<TokenOccurrence> tokensoccurrences = new ArrayList<>();
     static ArrayList<TokenOccurrence> totaloccurrences = new ArrayList<>();
+    static ArrayList<ErrorsEnum> errorsfound = new ArrayList<>();
+    
     
     public static void main(String[] args) {
         getScannerRoute();
@@ -35,6 +37,7 @@ public class Main {
         //printOccurrencesObjects();
         countTotalTokensOccurrences();
         generateTable();
+        printErrors();
     }
     public static void getScannerRoute(){
         scannerroute = "C:/Users/Arlem/Desktop/Git/SolidityScanner/src/LexicalAnalyzer/Lexer.flex";
@@ -67,18 +70,69 @@ public class Main {
                     EOF = true;
                     
                 }else{
-                    Token token = new Token();
-                    token.setType(readedtoken.toString());
-                    token.setValue(scanner.lexeme);
-                    token.setLinenumber(scanner.line());
-                    token.setColumnnumber(scanner.column());
-                    structure.insertToken(token);
+                    
+                    if(!readedtoken.equals(TokensEnum.ESCAPEERROR)&&!readedtoken.equals(TokensEnum.INVALID_CHARACTER)&&
+                       !readedtoken.equals(TokensEnum.INVALID_IDENTIFIER)&& !readedtoken.equals(TokensEnum.LQUOTEERROR)&&
+                       !readedtoken.equals(TokensEnum.RQUOTEERROR)&&!readedtoken.equals(TokensEnum.UNIDENTIFIED_ERROR)){
+                        Token token = new Token();
+                        token.setType(readedtoken.toString());
+                        token.setValue(scanner.lexeme);
+                        token.setLinenumber(scanner.line());
+                        token.setColumnnumber(scanner.column());
+                        structure.insertToken(token);
+                    }else{
+                        if(readedtoken.equals(TokensEnum.INVALID_IDENTIFIER)){
+                            errorsfound.add(ErrorsEnum.INVALID_IDENTIFIER);
+                        }
+                        if(readedtoken.equals(TokensEnum.INVALID_CHARACTER)){
+                            errorsfound.add(ErrorsEnum.INVALID_CHARACTER);
+                        }
+                        if(readedtoken.equals(TokensEnum.UNIDENTIFIED_ERROR)){
+                            errorsfound.add(ErrorsEnum.UNIDENTIFIED_ERROR);
+                        }
+                        if(readedtoken.equals(TokensEnum.ESCAPEERROR)){
+                            errorsfound.add(ErrorsEnum.ESCAPEERROR);
+                        }
+                        if(readedtoken.equals(TokensEnum.LQUOTEERROR)){
+                            errorsfound.add(ErrorsEnum.LQUOTEERROR);
+                        }
+                        if(readedtoken.equals(TokensEnum.RQUOTEERROR)){
+                            errorsfound.add(ErrorsEnum.RQUOTEERROR);
+                        }
+                        
+                    }
+                    /*switch(readedtoken){
+                        
+                        case UNIDENTIFIED_ERROR:
+                            errorsfound.add(ErrorsEnum.UNIDENTIFIED_ERROR);
+                            System.out.print(readedtoken.toString()+" "+scanner.yytext()+"\n");
+                        case INVALID_CHARACTER:
+                            errorsfound.add(ErrorsEnum.INVALID_CHARACTER);
+                            System.out.print(readedtoken.toString()+" "+scanner.yytext()+"\n");
+                        case INVALID_IDENTIFIER:
+                            errorsfound.add(ErrorsEnum.INVALID_IDENTIFIER);
+                            System.out.print(readedtoken.toString()+" "+scanner.yytext()+"\n");
+                        case ESCAPEERROR:
+                            errorsfound.add(ErrorsEnum.ESCAPEERROR);
+                        case LQUOTEERROR:
+                            errorsfound.add(ErrorsEnum.LQUOTEERROR);
+                        case RQUOTEERROR:
+                            errorsfound.add(ErrorsEnum.RQUOTEERROR);
+                        case INVALID_IDENTIFIER:
+                            errorsfound.add(ErrorsEnum.INVALID_IDENTIFIER);
+                        default:
+                            Token token = new Token();
+                            token.setType(readedtoken.toString());
+                            token.setValue(scanner.lexeme);
+                            token.setLinenumber(scanner.line());
+                            token.setColumnnumber(scanner.column());
+                            structure.insertToken(token);
+                    }*/
                 }
             }catch (IOException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             } 
         }
-        //structure.printTokens();
     }
     public static void countTokens(){
         if(!structure.getTokensList().isEmpty()){
@@ -136,10 +190,6 @@ public class Main {
             for(int i=0;i<size;i++){
                 
                 if(temptoken.getValue().equals(tokensoccurrences.get(i).getValue())){
-                    /*System.out.print("\nVALUE: "+tokensoccurrences.get(i).getValue()+"\n");
-                    System.out.print("LINENUMBER: "+tokensoccurrences.get(i).getLinenumber()+"\n");
-                    System.out.print("OCCURRENCES: "+tokensoccurrences.get(i).getOccurrences()+"\n");
-                    System.out.print("-------------------------------------------------------------");*/
                     temptoken.insertOccurrence(tokensoccurrences.get(i).getLinenumber(), tokensoccurrences.get(i).getOccurrences());
                     tokenstoremove.add(tokensoccurrences.get(i));
                 }
@@ -150,22 +200,13 @@ public class Main {
             }
             tokenstoremove.clear();
         }
-        /*System.out.print("TOTAL NUMBER OF TOKENS: "+totaloccurrences.size()+"\n");
-        for(TokenOccurrence total: totaloccurrences){
-            System.out.print("VALOR: "+total.getValue()+"\n");
-            int size = total.getTotalOccurrences().size();
-            for(int i =0;i<size;i++){
-                System.out.print(total.getOccurrence(i));
-            }
-           
-        }*/
     }
     public static void generateTable(){
         TableGenerator newtable = new TableGenerator();
         ArrayList<String> values = new ArrayList<String>();
         ArrayList<String> types = new ArrayList<String>();
         ArrayList<String> occurrences = new ArrayList<String>();
-        
+        System.out.println("\n-----------------------------------------------------------------------------");
         values.add("VALUE");
         types.add("TYPE");
         occurrences.add("OCCURRENCES");
@@ -187,10 +228,18 @@ public class Main {
         newtable.initializeTable(values);
         newtable.initializeTable(occurrences);
         newtable.printTable(4);
+        System.out.println("-----------------------------------------------------------------------------");
     }
-    /*public static void printOccurrencesObjects(){
+    private static void printErrors(){
+        int size = errorsfound.size();
+        System.out.println(size+" ERROR(S) FOUND \n");
+        for(int i=0;i<size;i++){
+            System.out.println("ERROR:"+errorsfound.get(i).getDescription());
+        }
+    }
+    public static void printOccurrencesObjects(){
         for (TokenOccurrence token : tokensoccurrences) {
             System.out.println("Type: "+token.getType()+" Value: "+token.getValue()+" Line: "+token.getLinenumber()+" Occurrences: "+token.getOccurrences()+ "\n");
         }
-    }*/
+    }
 }

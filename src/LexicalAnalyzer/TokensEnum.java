@@ -12,7 +12,12 @@ package LexicalAnalyzer;
 public enum TokensEnum {
 
     RESERVADAS,
-    ERROR,
+    UNIDENTIFIED_ERROR,
+    INVALID_CHARACTER,
+    ESCAPEERROR,
+    LQUOTEERROR,
+    RQUOTEERROR,
+    INVALID_IDENTIFIER,
     //Tokens for comments
     MULTICOMMENT,SINGLECOMMENT,
     //Tokens for reserved words

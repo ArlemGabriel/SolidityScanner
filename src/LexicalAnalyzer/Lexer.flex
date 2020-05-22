@@ -114,7 +114,7 @@
     SUBEQUAL = \-\=
     MULTIEQUAL = \*\=
     DIVEQUAL = \/\=
-
+    DOLLAR = \$
     SINGLECOMMENT = \\\\[^\n\\]+
     MULTICOMMENT = \/\*\*([^*]|(\*+[^*/]))*\*+\/
     ID = [a-zA-Z]{1}[a-zA-Z|0-9|_]*
@@ -122,6 +122,8 @@
     CONSINTEGER = [0-9]+
     CONSREAL = [0-9]*[.][0-9]+|[0-9]+[.][0-9]*
     CONSSCIENT = [-]?[0-9]+([.][0-9]+)?[e][-]?[0-9]+
+    INVALIDCHAR = ['|`|@|#|"|"|\\|:|_|$|¡|¿|´]{1}|[;]{2}
+    INVALIDID = [0-9|_]+[a-zA-Z|_]+[a-zA-Z|_|0-9]*
 
 
 %%
@@ -223,6 +225,8 @@
     {MULTIEQUAL} {lexeme = yytext();return MULTIEQUAL;}
     {DIVEQUAL} {lexeme = yytext();return DIVEQUAL;}
 
+    {INVALIDID} {return INVALID_IDENTIFIER;}
+
     {SINGLECOMMENT} {lexeme = yytext();return SINGLECOMMENT;}
     {MULTICOMMENT} {lexeme = yytext();return MULTICOMMENT;}
     {ID} {lexeme = yytext();return ID;}
@@ -232,6 +236,8 @@
     {ADDRESS} {lexeme = yytext();return ADDRESS;}
     {ADDRESS} {lexeme = yytext();return ADDRESS;}
     {BLANKSPACE} {/*IGNORE*/}
-    . {return ERROR;}
+    
+    {INVALIDCHAR} {return INVALID_CHARACTER;}
+    . {return UNIDENTIFIED_ERROR;}
 
 
