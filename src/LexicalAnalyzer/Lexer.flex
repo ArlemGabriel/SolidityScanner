@@ -113,19 +113,19 @@
     SUBEQUAL = \-\=
     MULTIEQUAL = \*\=
     DIVEQUAL = \/\=
-    SINGLECOMMENT = \\\\[^\n\\]+
-    MULTICOMMENT = \/\*\*([^*]|(\*+[^*/]))*\*+\/
+    CONSINTEGERHEX = hex(\"[0-9|A-F|a-f]+\"|\'[0-9|A-F|a-f]+\')
+    SINGLECOMMENT = (\/\/[^\n\/]+)|(\/\/)
+    MULTICOMMENT = \/\*([^*]|(\*+[^*/]))*\*+\/
     ID = [a-zA-Z]{1}[a-zA-Z|0-9|_]*
     BLANKSPACE = [ ,\t,\r,\n]+
     CONSINTEGER = [0-9]+
     CONSREAL = [0-9]*[.][0-9]+|[0-9]+[.][0-9]*
-    CONSSCIENT = [-]?[0-9]+([.][0-9]+)?[e][-]?[0-9]+
-    CONSINTEGERHEX = hex("[0-9|A-F|a-f]+"|'[0-9|A-F|a-f]+')
-    CONSSTRING = (\"[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\]*)|(\\\\[^\'\"\\\n]*))*\")|(\'[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\]*)|(\\\\[^\'\"\\\n]*))*\')
+    CONSSCIENT = (-)[0-9]+(e)[0-9]+|[0-9]+(e)[0-9]+|[0-9]+(e-)[0-9]+|[0-9]+(.)[0-9]+(e)[0-9]+
+    CONSSTRING = (\"[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\\n]*)|(\\\\[^\'\"\\\n]*))*\")|(\'[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\\n]*)|(\\\\[^\'\"\\\n]*))*\')
     INVALIDCHAR = ['|`|@|#|"|"|\\|:|_|$|¡|¿|´]{1}|[;]{2}
     INVALIDID = [0-9|_]+[a-zA-Z|_]+[a-zA-Z|_|0-9]*
-    LQUOTEERROR = ([^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\]*)|(\\\\[^\'\"\\\n]*))*\")|([^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\]*)|(\\\\[^\'\"\\\n]*))*\')
-    RQUOTEERROR = (\"[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\]*)|(\\\\[^\'\"\\\n]*))*)|(\'[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\]*)|(\\\\[^\'\"\\\n]*))*)
+    QUOTEERROR = \"
+    ESCAPEERROR = (\"[^\"\'\\\n]*((\\[^n|xNN|uNNNN)][\'\"\\\n]*)|(\\\\[^\'\"\\\n]*))*\")|(\'[^\"\'\\\n]*((\\[^n|xNN|uNNNN)][\'\"\\\n]*)|(\\\\[^\'\"\\\n]*))*\')
     INTWITHSIGN = (uint|int)(8|16|32|64|128|256)
     INTWITHOUTSIGN = (uint|int)
 %%
@@ -149,6 +149,9 @@
     {FOR} {lexeme = yytext();return FOR;}
     {FROM} {lexeme = yytext();return FROM;}
     {FUNCTION} {lexeme = yytext();return FUNCTION;}
+    
+    {CONSINTEGERHEX} {lexeme = yytext();return CONSINTEGERHEX;}
+
     {HEX} {lexeme = yytext();return HEX;}
     {IF} {lexeme = yytext();return IF;}
     {IMPORT} {lexeme = yytext();return IMPORT;}
@@ -204,6 +207,7 @@
     {SUM} {lexeme = yytext();return SUM;}
     {SUBSTRACTION} {lexeme = yytext();return SUBSTRACTION;}
     {MULTIPLICATION} {lexeme = yytext();return MULTIPLICATION;}
+    {SINGLECOMMENT} {/*IGNORE*/}
     {DIVISION} {lexeme = yytext();return DIVISION;}
     {MODULE} {lexeme = yytext();return MODULE;}
     {EXPONENTIATION} {lexeme = yytext();return EXPONENTIATION;}
@@ -225,24 +229,23 @@
     {SUBEQUAL} {lexeme = yytext();return SUBEQUAL;}
     {MULTIEQUAL} {lexeme = yytext();return MULTIEQUAL;}
     {DIVEQUAL} {lexeme = yytext();return DIVEQUAL;}
-
+    
+    {CONSSCIENT} {lexeme = yytext();return CONSSCIENT;}
     {INVALIDID} {return INVALID_IDENTIFIER;}
-    {LQUOTEERROR} {return LQUOTEERROR;}
-    {RQUOTEERROR} {return RQUOTEERROR;}
-    {CONSSTRING} {lexeme = yytext();return CONSSTRING;}
-    {SINGLECOMMENT} {lexeme = yytext();return SINGLECOMMENT;}
-    {MULTICOMMENT} {lexeme = yytext();return MULTICOMMENT;}
+    
+    {MULTICOMMENT} {/*IGNORE*/}
     {INTWITHSIGN} {lexeme = yytext();return INTWITHSIGN;}
     {INTWITHOUTSIGN} {lexeme = yytext();return INTWITHOUTSIGN;}
-    {CONSINTEGERHEX} {lexeme = yytext();return CONSINTEGERHEX;}
+    {CONSSTRING} {lexeme = yytext();return CONSSTRING;}
+    {ESCAPEERROR} {lexeme = yytext();return ESCAPEERROR;}
     {ID} {lexeme = yytext();return ID;}
     {CONSINTEGER} {lexeme = yytext();return CONSINTEGER;}
     {CONSREAL} {lexeme = yytext();return CONSREAL;}
-    {CONSSCIENT} {lexeme = yytext();return CONSSCIENT;}
-    {ADDRESS} {lexeme = yytext();return ADDRESS;}
-    {ADDRESS} {lexeme = yytext();return ADDRESS;}
-    {BLANKSPACE} {/*IGNORE*/}
     
+    {ADDRESS} {lexeme = yytext();return ADDRESS;}
+    {ADDRESS} {lexeme = yytext();return ADDRESS;}
+    {QUOTEERROR} {return QUOTEERROR;}
+    {BLANKSPACE} {/*IGNORE*/}
     {INVALIDCHAR} {return INVALID_CHARACTER;}
 
     . {return UNIDENTIFIED_ERROR;}

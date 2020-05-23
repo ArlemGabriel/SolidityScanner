@@ -72,8 +72,8 @@ public class Main {
                 }else{
                     
                     if(!readedtoken.equals(TokensEnum.ESCAPEERROR)&&!readedtoken.equals(TokensEnum.INVALID_CHARACTER)&&
-                       !readedtoken.equals(TokensEnum.INVALID_IDENTIFIER)&& !readedtoken.equals(TokensEnum.LQUOTEERROR)&&
-                       !readedtoken.equals(TokensEnum.RQUOTEERROR)&&!readedtoken.equals(TokensEnum.UNIDENTIFIED_ERROR)){
+                       !readedtoken.equals(TokensEnum.INVALID_IDENTIFIER)&&
+                       !readedtoken.equals(TokensEnum.QUOTEERROR)&&!readedtoken.equals(TokensEnum.UNIDENTIFIED_ERROR)){
                         Token token = new Token();
                         token.setType(readedtoken.toString());
                         token.setValue(scanner.lexeme);
@@ -93,11 +93,8 @@ public class Main {
                         if(readedtoken.equals(TokensEnum.ESCAPEERROR)){
                             errorsfound.add("ERROR: "+ErrorsEnum.ESCAPEERROR.getDescription()+" at line "+scanner.line()+ " column "+scanner.column());
                         }
-                        if(readedtoken.equals(TokensEnum.LQUOTEERROR)){
-                            errorsfound.add("ERROR: "+ErrorsEnum.LQUOTEERROR.getDescription()+" at line "+scanner.line()+ " column "+scanner.column());
-                        }
-                        if(readedtoken.equals(TokensEnum.RQUOTEERROR)){
-                            errorsfound.add("ERROR: "+ErrorsEnum.RQUOTEERROR.getDescription()+" at line "+scanner.line()+ " column "+scanner.column());
+                        if(readedtoken.equals(TokensEnum.QUOTEERROR)){
+                            errorsfound.add("ERROR: "+ErrorsEnum.QUOTEERROR.getDescription()+" at line "+scanner.line()+ " column "+scanner.column());
                         }
                         
                     }

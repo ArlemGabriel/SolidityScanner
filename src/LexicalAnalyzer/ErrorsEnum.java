@@ -13,9 +13,8 @@ public enum ErrorsEnum {
     UNIDENTIFIED_ERROR(0,"Unidentified Lexical Error"),
     INVALID_CHARACTER(1, "Invalid character"),
     ESCAPEERROR(2, "Escape error on string"),
-    LQUOTEERROR(3, "Missing left quote"),
-    RQUOTEERROR(4,"Missing right quote"),
-    INVALID_IDENTIFIER(5,"Invalid identifier");
+    QUOTEERROR(3, "Missing quote"),
+    INVALID_IDENTIFIER(4,"Invalid identifier");
     
   private final int code;
   private final String description;
