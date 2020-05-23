@@ -7,10 +7,8 @@ package LexicalAnalyzer;
 
 import java.util.ArrayList;
 
-/**
- *
- * @author Arlem
- */
+/*Objective: This class was created to generate the table
+of the lexical analyzer and to print it on console*/
 public class TableGenerator {
     private ArrayList<ArrayList<String>> table;
     

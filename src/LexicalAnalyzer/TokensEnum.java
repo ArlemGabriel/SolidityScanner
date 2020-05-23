@@ -5,10 +5,8 @@
  */
 package LexicalAnalyzer;
 
-/**
- *
- * @author Arlem
- */
+/*Objective: This class enum was created to get the matches
+of the Lexer.flex and return it*/
 public enum TokensEnum {
     //Tokens for comments
     MULTICOMMENT,SINGLECOMMENT,

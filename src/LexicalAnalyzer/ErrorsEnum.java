@@ -5,10 +5,9 @@
  */
 package LexicalAnalyzer;
 
-/**
- *
- * @author Arlem
- */
+/*Objective: This class enum was created to differentiate the
+errors that the lexical analyzer could throw and to have
+a description to print it to the user*/
 public enum ErrorsEnum {
     UNIDENTIFIED_ERROR(0,"Unidentified Lexical Error"),
     INVALID_CHARACTER(1, "Invalid character"),

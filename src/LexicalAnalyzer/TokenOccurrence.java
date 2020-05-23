@@ -7,10 +7,10 @@ package LexicalAnalyzer;
 
 import java.util.ArrayList;
 
-/**
- *
- * @author Arlem
- */
+/*Objective: This class was created to create tokens
+that has the posibility to store all the occurrences
+that they have by line along the file analized */
+
 public class TokenOccurrence extends Token{
     private int occurrences;
     private ArrayList<ArrayList<Integer>> totaloccurrences;

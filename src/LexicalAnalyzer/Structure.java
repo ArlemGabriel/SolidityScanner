@@ -5,10 +5,8 @@
  */
 package LexicalAnalyzer;
 import java.util.ArrayList;
-/**
- *
- * @author Arlem
- */
+/*Objective: This class was created to store objects of
+type token thinking on the next stage of making the parser*/
 public class Structure {
     private final ArrayList<Token> tokens;
     

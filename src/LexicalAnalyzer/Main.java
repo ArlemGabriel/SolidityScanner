@@ -34,14 +34,17 @@ public class Main {
         readTokensFile();
         getTokens();
         countTokens();
-        //printOccurrencesObjects();
         countTotalTokensOccurrences();
         generateTable();
         printErrors();
     }
+    /*Objective: This method was created to assign the route 
+    where the scanner is going to be located*/
     public static void getScannerRoute(){
         scannerroute = "C:/Users/Arlem/Desktop/Git/SolidityScanner/src/LexicalAnalyzer/Lexer.flex";
     }
+    /*Objective: This method was created to generate the scanner 
+    from the entered route in the function getScannerRoute  */
     public static void generateScanner(){
         String[] file = new String[] {scannerroute};
         try {
@@ -50,15 +53,20 @@ public class Main {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    /*Objective: This method was created to specify the route
+    where the tokens file to scan is located*/
     public static void getTokensFileRoute(){
         String tokensfileroute = "C:\\Archivo.txt";
         newtokensfile = new FilesReader(tokensfileroute);
     }
+    /*Objective: This method was created to open the tokens
+    file and store it in a buffer*/
     public static void readTokensFile(){
         newtokensfile.readFile();
         tokensbuffer = newtokensfile.getBufferReader();
     }
-    
+    /*Objective: This method was created to do the lexical
+    analysis by reading token by token from the buffer*/
     public static void getTokens(){
         Scanner scanner = new Scanner(tokensbuffer);
         Boolean EOF = false;
@@ -70,7 +78,8 @@ public class Main {
                     EOF = true;
                     
                 }else{
-                    
+                    //Funcionality: If the token readed from buffer is not an error
+                    //then create an object of type Token and store it
                     if(!readedtoken.equals(TokensEnum.ESCAPEERROR)&&!readedtoken.equals(TokensEnum.INVALID_CHARACTER)&&
                        !readedtoken.equals(TokensEnum.INVALID_IDENTIFIER)&&
                        !readedtoken.equals(TokensEnum.QUOTEERROR)&&!readedtoken.equals(TokensEnum.UNIDENTIFIED_ERROR)){
@@ -81,6 +90,8 @@ public class Main {
                         token.setColumnnumber(scanner.column());
                         structure.insertToken(token);
                     }else{
+                    //Funcionality: If the token readed from buffer is an error
+                    //then store the type of error in a list
                         if(readedtoken.equals(TokensEnum.INVALID_IDENTIFIER)){
                             errorsfound.add("ERROR: "+ErrorsEnum.INVALID_IDENTIFIER.getDescription()+" at line "+scanner.line()+ " column "+scanner.column());
                         }
@@ -100,39 +111,15 @@ public class Main {
                             errorsfound.add("ERROR: "+ErrorsEnum.CONSSTRINGERROR.getDescription()+" at line "+scanner.line()+ " column "+scanner.column());
                         }
                     }
-                    /*switch(readedtoken){
-                        
-                        case UNIDENTIFIED_ERROR:
-                            errorsfound.add(ErrorsEnum.UNIDENTIFIED_ERROR);
-                            System.out.print(readedtoken.toString()+" "+scanner.yytext()+"\n");
-                        case INVALID_CHARACTER:
-                            errorsfound.add(ErrorsEnum.INVALID_CHARACTER);
-                            System.out.print(readedtoken.toString()+" "+scanner.yytext()+"\n");
-                        case INVALID_IDENTIFIER:
-                            errorsfound.add(ErrorsEnum.INVALID_IDENTIFIER);
-                            System.out.print(readedtoken.toString()+" "+scanner.yytext()+"\n");
-                        case ESCAPEERROR:
-                            errorsfound.add(ErrorsEnum.ESCAPEERROR);
-                        case LQUOTEERROR:
-                            errorsfound.add(ErrorsEnum.LQUOTEERROR);
-                        case RQUOTEERROR:
-                            errorsfound.add(ErrorsEnum.RQUOTEERROR);
-                        case INVALID_IDENTIFIER:
-                            errorsfound.add(ErrorsEnum.INVALID_IDENTIFIER);
-                        default:
-                            Token token = new Token();
-                            token.setType(readedtoken.toString());
-                            token.setValue(scanner.lexeme);
-                            token.setLinenumber(scanner.line());
-                            token.setColumnnumber(scanner.column());
-                            structure.insertToken(token);
-                    }*/
                 }
             }catch (IOException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             } 
         }
     }
+    /*Objective: This method compares take the total tokens analyzed
+    and passes them one by one to the countTokensOccurrencesByLine function
+    to count the number of occurrences*/
     public static void countTokens(){
         if(!structure.getTokensList().isEmpty()){
             String actualtype;
@@ -155,6 +142,8 @@ public class Main {
             }
         }
     }
+    /*Objective: This method was created to count the occurrences
+    of the tokens by line and saves it in a new structure*/
     public static void countTokensOccurrencesByLine(String type,String actualvalue,int actualline){
         int occurrence =0;
         for(Token tokentovisit : structure.getTokensList()){
@@ -169,6 +158,8 @@ public class Main {
         newtoken.setOccurrences(occurrence);
         tokensoccurrences.add(newtoken);
     }
+    /*Objective: This method was created to return true if a token
+    was already analized and all their occurrences were counted by line */
     public static Boolean tokenExists(String actualvalue, int actualline){
         Boolean query = false;
         for(Token token : tokensoccurrences){
@@ -179,6 +170,8 @@ public class Main {
         }
         return query;
     }
+    /*Objective: This method was created to count the total occurrences
+    of the tokens with their respective line number and the number of occurrences by line*/
     public static void countTotalTokensOccurrences(){
         ArrayList<TokenOccurrence> tokenstoremove = new ArrayList<>();
         TokenOccurrence temptoken;
@@ -200,6 +193,8 @@ public class Main {
             tokenstoremove.clear();
         }
     }
+    /*Objective: This method was created to generate the table of
+    the lexical analyzer for all the tokens*/
     public static void generateTable(){
         TableGenerator newtable = new TableGenerator();
         ArrayList<String> values = new ArrayList<String>();
@@ -229,16 +224,13 @@ public class Main {
         newtable.printTable(6);
         System.out.println("-----------------------------------------------------------------------------");
     }
+    /*Objective: This method was created to print all the errors
+    encounted on execution of the lexer*/
     private static void printErrors(){
         int size = errorsfound.size();
         System.out.println(size+" ERROR(S) FOUND \n");
         for(int i=0;i<size;i++){
             System.out.println(errorsfound.get(i));
-        }
-    }
-    public static void printOccurrencesObjects(){
-        for (TokenOccurrence token : tokensoccurrences) {
-            System.out.println("Type: "+token.getType()+" Value: "+token.getValue()+" Line: "+token.getLinenumber()+" Occurrences: "+token.getOccurrences()+ "\n");
         }
     }
 }

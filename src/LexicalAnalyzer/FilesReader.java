@@ -11,10 +11,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-/**
- *
- * @author Arlem
- */
+/*Objective: This class was created to open and read
+the file which has the tokens to analyze*/
 public class FilesReader {
     private File archivo;
     private java.io.FileReader fr;
