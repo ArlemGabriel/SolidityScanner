@@ -96,7 +96,9 @@ public class Main {
                         if(readedtoken.equals(TokensEnum.QUOTEERROR)){
                             errorsfound.add("ERROR: "+ErrorsEnum.QUOTEERROR.getDescription()+" at line "+scanner.line()+ " column "+scanner.column());
                         }
-                        
+                        if(readedtoken.equals(TokensEnum.CONSSTRINGERROR)){
+                            errorsfound.add("ERROR: "+ErrorsEnum.CONSSTRINGERROR.getDescription()+" at line "+scanner.line()+ " column "+scanner.column());
+                        }
                     }
                     /*switch(readedtoken){
                         
@@ -224,7 +226,7 @@ public class Main {
         newtable.initializeTable(types);
         newtable.initializeTable(values);
         newtable.initializeTable(occurrences);
-        newtable.printTable(4);
+        newtable.printTable(6);
         System.out.println("-----------------------------------------------------------------------------");
     }
     private static void printErrors(){

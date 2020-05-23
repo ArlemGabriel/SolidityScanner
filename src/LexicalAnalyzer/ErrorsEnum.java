@@ -14,7 +14,8 @@ public enum ErrorsEnum {
     INVALID_CHARACTER(1, "Invalid character"),
     ESCAPEERROR(2, "Escape error on string"),
     QUOTEERROR(3, "Missing quote"),
-    INVALID_IDENTIFIER(4,"Invalid identifier");
+    INVALID_IDENTIFIER(4,"Invalid identifier"),
+    CONSSTRINGERROR(5,"String doesnt allow multiple lines");
     
   private final int code;
   private final String description;

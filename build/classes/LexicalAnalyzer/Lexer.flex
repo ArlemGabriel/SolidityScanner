@@ -124,8 +124,9 @@
     CONSSTRING = (\"[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\\n]*)|(\\\\[^\'\"\\\n]*))*\")|(\'[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\\n]*)|(\\\\[^\'\"\\\n]*))*\')
     INVALIDCHAR = ['|`|@|#|"|"|\\|:|_|$|¡|¿|´]{1}|[;]{2}
     INVALIDID = [0-9|_]+[a-zA-Z|_]+[a-zA-Z|_|0-9]*
-    QUOTEERROR = \"
     ESCAPEERROR = (\"[^\"\'\\\n]*((\\[^n|xNN|uNNNN)][\'\"\\\n]*)|(\\\\[^\'\"\\\n]*))*\")|(\'[^\"\'\\\n]*((\\[^n|xNN|uNNNN)][\'\"\\\n]*)|(\\\\[^\'\"\\\n]*))*\')
+    CONSSTRINGERROR = (\"[^\"\'\\]*((\\(n|xNN|uNNNN)[^\'\"\\]*)|(\\\\[^\'\"\\\n]*))*\")
+    QUOTEERROR = \"
     INTWITHSIGN = (uint|int)(8|16|32|64|128|256)
     INTWITHOUTSIGN = (uint|int)
 %%
@@ -238,6 +239,7 @@
     {INTWITHOUTSIGN} {lexeme = yytext();return INTWITHOUTSIGN;}
     {CONSSTRING} {lexeme = yytext();return CONSSTRING;}
     {ESCAPEERROR} {lexeme = yytext();return ESCAPEERROR;}
+    {CONSSTRINGERROR} {lexeme = yytext();return CONSSTRINGERROR;}
     {ID} {lexeme = yytext();return ID;}
     {CONSINTEGER} {lexeme = yytext();return CONSINTEGER;}
     {CONSREAL} {lexeme = yytext();return CONSREAL;}
