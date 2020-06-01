@@ -114,8 +114,8 @@
     MULTIEQUAL = \*\=
     DIVEQUAL = \/\=
     CONSINTEGERHEX = hex(\"[0-9|A-F|a-f]+\"|\'[0-9|A-F|a-f]+\')
-    SINGLECOMMENT = (\/\/[^\n\/]+)|(\/\/)
-    MULTICOMMENT = \/\*([^*]|(\*+[^*/]))*\*+\/
+    SINGLECOMMENT = (\/\/[^\n]+)|(\/\/)
+    MULTICOMMENT = \/\*\*([^*]|(\*+[^*/]))*\*+\/
     ID = [a-zA-Z]{1}[a-zA-Z|0-9|_]*
     BLANKSPACE = [ ,\t,\r,\n]+
     CONSINTEGER = [0-9]+
@@ -126,7 +126,7 @@
     INVALIDID = [0-9|_]+[a-zA-Z|_]+[a-zA-Z|_|0-9]*
     ESCAPEERROR = (\"[^\"\'\\\n]*((\\[^n|xNN|uNNNN)][\'\"\\\n]*)|(\\\\[^\'\"\\\n]*))*\")|(\'[^\"\'\\\n]*((\\[^n|xNN|uNNNN)][\'\"\\\n]*)|(\\\\[^\'\"\\\n]*))*\')
     CONSSTRINGERROR = (\"[^\"\'\\]*((\\(n|xNN|uNNNN)[^\'\"\\]*)|(\\\\[^\'\"\\\n]*))*\")
-    QUOTEERROR = \"
+    QUOTEERROR = (\"[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\\n]*)|(\\\\[^\'\"\\\n]*))*)|(\'[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\\n]*)|(\\\\[^\'\"\\\n]*))*)
     INTWITHSIGN = (uint|int)(8|16|32|64|128|256)
     INTWITHOUTSIGN = (uint|int)
 %%

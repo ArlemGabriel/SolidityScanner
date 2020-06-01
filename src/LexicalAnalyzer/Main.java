@@ -41,7 +41,7 @@ public class Main {
     /*Objective: This method was created to assign the route 
     where the scanner is going to be located*/
     public static void getScannerRoute(){
-        scannerroute = "C:/Users/Arlem/Desktop/Git/SolidityScanner/src/LexicalAnalyzer/Lexer.flex";
+        scannerroute = "../SolidityScanner/src/LexicalAnalyzer/Lexer.flex";
     }
     /*Objective: This method was created to generate the scanner 
     from the entered route in the function getScannerRoute  */
@@ -56,7 +56,7 @@ public class Main {
     /*Objective: This method was created to specify the route
     where the tokens file to scan is located*/
     public static void getTokensFileRoute(){
-        String tokensfileroute = "C:\\Archivo.txt";
+        String tokensfileroute = "../SolidityScanner/literales1.txt";
         newtokensfile = new FilesReader(tokensfileroute);
     }
     /*Objective: This method was created to open the tokens
