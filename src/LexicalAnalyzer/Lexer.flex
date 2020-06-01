@@ -116,11 +116,12 @@
     CONSINTEGERHEX = hex(\"[0-9|A-F|a-f]+\"|\'[0-9|A-F|a-f]+\')
     SINGLECOMMENT = (\/\/[^\n]+)|(\/\/)
     MULTICOMMENT = \/\*\*([^*]|(\*+[^*/]))*\*+\/
+    MULTICOMMENTERROR = \/\*\*([^*]|(\*+[^*/]))*
     ID = [a-zA-Z]{1}[a-zA-Z|0-9|_]*
     BLANKSPACE = [ ,\t,\r,\n]+
     CONSINTEGER = [0-9]+
     CONSREAL = [0-9]*[.][0-9]+|[0-9]+[.][0-9]*
-    CONSSCIENT = (-)[0-9]+(e)[0-9]+|[0-9]+(e)[0-9]+|[0-9]+(e-)[0-9]+|[0-9]+(.)[0-9]+(e)[0-9]+
+    CONSSCIENT = (-)[0-9]+(e)[0-9]+|[0-9]+(e)[0-9]+|[0-9]+(e)(-)[0-9]+|(-)[0-9]+(e)(-)[0-9]+|[0-9]+(.)[0-9]+(e)[0-9]+|(-)[0-9]+(.)[0-9]+(e)[0-9]+|[0-9]+(.)[0-9]+(e)(-)[0-9]+|(-)[0-9]+(.)[0-9]+(e)(-)[0-9]+
     CONSSTRING = (\"[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\\n]*)|(\\\\[^\'\"\\\n]*))*\")|(\'[^\"\'\\\n]*((\\(n|xNN|uNNNN)[^\'\"\\\n]*)|(\\\\[^\'\"\\\n]*))*\')
     INVALIDCHAR = ['|`|@|#|"|"|\\|:|_|$|¡|¿|´]{1}|[;]{2}
     INVALIDID = [0-9|_]+[a-zA-Z|_]+[a-zA-Z|_|0-9]*
@@ -235,6 +236,7 @@
     {INVALIDID} {return INVALID_IDENTIFIER;}
     
     {MULTICOMMENT} {/*IGNORE*/}
+    {MULTICOMMENTERROR} {lexeme = yytext();return MULTICOMMENTERROR;}
     {INTWITHSIGN} {lexeme = yytext();return INTWITHSIGN;}
     {INTWITHOUTSIGN} {lexeme = yytext();return INTWITHOUTSIGN;}
     {CONSSTRING} {lexeme = yytext();return CONSSTRING;}

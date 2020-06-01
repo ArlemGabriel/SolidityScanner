@@ -56,7 +56,7 @@ public class Main {
     /*Objective: This method was created to specify the route
     where the tokens file to scan is located*/
     public static void getTokensFileRoute(){
-        String tokensfileroute = "../SolidityScanner/literales1.txt";
+        String tokensfileroute = "../SolidityScanner/Archivo.txt";
         newtokensfile = new FilesReader(tokensfileroute);
     }
     /*Objective: This method was created to open the tokens
@@ -82,7 +82,8 @@ public class Main {
                     //then create an object of type Token and store it
                     if(!readedtoken.equals(TokensEnum.ESCAPEERROR)&&!readedtoken.equals(TokensEnum.INVALID_CHARACTER)&&
                        !readedtoken.equals(TokensEnum.INVALID_IDENTIFIER)&&
-                       !readedtoken.equals(TokensEnum.QUOTEERROR)&&!readedtoken.equals(TokensEnum.UNIDENTIFIED_ERROR)){
+                       !readedtoken.equals(TokensEnum.QUOTEERROR)&&!readedtoken.equals(TokensEnum.UNIDENTIFIED_ERROR)&&
+                       !readedtoken.equals(TokensEnum.CONSSTRINGERROR) && !readedtoken.equals(TokensEnum.MULTICOMMENTERROR)){
                         Token token = new Token();
                         token.setType(readedtoken.toString());
                         token.setValue(scanner.lexeme);
@@ -109,6 +110,9 @@ public class Main {
                         }
                         if(readedtoken.equals(TokensEnum.CONSSTRINGERROR)){
                             errorsfound.add("ERROR: "+ErrorsEnum.CONSSTRINGERROR.getDescription()+" at line "+scanner.line()+ " column "+scanner.column());
+                        }
+                        if(readedtoken.equals(TokensEnum.MULTICOMMENTERROR)){
+                            errorsfound.add("ERROR: "+ErrorsEnum.MULTICOMMENTERROR.getDescription()+" at line "+scanner.line()+ " column "+scanner.column());
                         }
                     }
                 }
