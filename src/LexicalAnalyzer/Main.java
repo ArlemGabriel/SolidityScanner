@@ -56,7 +56,7 @@ public class Main {
     /*Objective: This method was created to specify the route
     where the tokens file to scan is located*/
     public static void getTokensFileRoute(){
-        String tokensfileroute = "../SolidityScanner/Archivo.txt";
+        String tokensfileroute = "../SolidityScanner/codigo_solidity.txt";
         newtokensfile = new FilesReader(tokensfileroute);
     }
     /*Objective: This method was created to open the tokens
