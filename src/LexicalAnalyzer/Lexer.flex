@@ -55,7 +55,6 @@
     THIS = this
     TRUE = true
     UFIXED = ufixed
-    UINT = uint
     VAR = var
     VIEW = view
     WHILE = while
