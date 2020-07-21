@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package LexicalAnalyzer;
+package Compiler;
 
 /*Objective: This class enum was created to get the matches
 of the Lexer.flex and return it*/

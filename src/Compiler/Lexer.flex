@@ -1,8 +1,8 @@
 //*****************************************
 //  IMPORTS AND PACKAGES
 //*****************************************
-    package LexicalAnalyzer;
-    import static LexicalAnalyzer.TokensEnum.*;
+    package Compiler;
+    import static Compiler.TokensEnum.*;
 %%
 //*****************************************
 //  OPTIONS AND DECLARATIONS
@@ -44,7 +44,7 @@
     MAPPING = mapping
     MODIFIER = modifier
     PAYABLE = payable
-    PRAGMA = Pragma
+    PRAGMA = (Pragma | pragma)
     PRIVATE = private
     PUBLIC = public
     RETURN = return
@@ -171,7 +171,6 @@
     {THIS} {lexeme = yytext();return THIS;}
     {TRUE} {lexeme = yytext();return TRUE;}
     {UFIXED} {lexeme = yytext();return UFIXED;}
-    {UINT} {lexeme = yytext();return UINT;}
     {VAR} {lexeme = yytext();return VAR;}
     {VIEW} {lexeme = yytext();return VIEW;}
     {WHILE} {lexeme = yytext();return WHILE;}
@@ -245,7 +244,6 @@
     {CONSINTEGER} {lexeme = yytext();return CONSINTEGER;}
     {CONSREAL} {lexeme = yytext();return CONSREAL;}
     
-    {ADDRESS} {lexeme = yytext();return ADDRESS;}
     {ADDRESS} {lexeme = yytext();return ADDRESS;}
     {QUOTEERROR} {return QUOTEERROR;}
     {BLANKSPACE} {/*IGNORE*/}

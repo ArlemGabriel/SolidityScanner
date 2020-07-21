@@ -3,13 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package LexicalAnalyzer;
+package Compiler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java_cup.runtime.Symbol;
 import jflex.exceptions.SilentExit;
 
 /**
@@ -18,7 +22,7 @@ import jflex.exceptions.SilentExit;
  */
 public class Main {
     
-    static String scannerroute;
+    static String scannerroute, scannerrouteCup, parserroute;
     static FilesReader newtokensfile;
     static BufferedReader tokensbuffer;
     static Structure structure = new Structure();
@@ -31,25 +35,66 @@ public class Main {
         getScannerRoute();
         generateScanner();
         getTokensFileRoute();
+
+        //Scanner        
         readTokensFile();
         getTokens();
-        countTokens();
-        countTotalTokensOccurrences();
-        generateTable();
+        countTokens();//Scanner
+        countTotalTokensOccurrences();//Scanner
+        generateTable();//Scanner
         printErrors();
+        
+        //Parser
+        /*getParserRoute();
+        generateParser();
+        readTokensFile();
+        executeParser();*/
     }
     /*Objective: This method was created to assign the route 
     where the scanner is going to be located*/
     public static void getScannerRoute(){
-        scannerroute = "../SolidityScanner/src/LexicalAnalyzer/Lexer.flex";
+        scannerroute = "../SolidityScanner/src/Compiler/Lexer.flex";
+        scannerrouteCup = "../SolidityScanner/src/Compiler/LexerCup.flex";
+    }
+    public static void getParserRoute(){
+        parserroute = "../SolidityScanner/src/Compiler/Parser.cup";
     }
     /*Objective: This method was created to generate the scanner 
     from the entered route in the function getScannerRoute  */
     public static void generateScanner(){
         String[] file = new String[] {scannerroute};
+        String[] file2 = new String[] {scannerrouteCup};
         try {
             jflex.Main.generate(file);
+            jflex.Main.generate(file2);
         } catch (SilentExit ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    public static void generateParser(){
+        String[] file = {"-nowarn","-progress", "-parser","Parser",parserroute};
+        try {
+            //Generate file Parser.java and sym.java
+            java_cup.Main.main(file);
+            
+            //Check if the generated files already exists
+            Path parserRoute = Paths.get("../SolidityScanner/src/Compiler/Parser.java");
+            if(Files.exists(parserRoute))
+                Files.delete(parserRoute); //If file exist delete it
+            Path parserSymRoute = Paths.get("../SolidityScanner/src/Compiler/sym.java");
+            if(Files.exists(parserSymRoute))
+                Files.delete(parserSymRoute); //If file exist delete it
+            
+            //Move files generated to the right package
+            Files.move(Paths.get("../SolidityScanner/Parser.java"),
+                        Paths.get("../SolidityScanner/src/Compiler/Parser.java"));
+            Files.move(Paths.get("../SolidityScanner/sym.java"),
+                        Paths.get("../SolidityScanner/src/Compiler/sym.java"));
+        } catch (SilentExit ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -76,7 +121,6 @@ public class Main {
                 readedtoken = scanner.yylex();
                 if(readedtoken == null){
                     EOF = true;
-                    
                 }else{
                     //Funcionality: If the token readed from buffer is not an error
                     //then create an object of type Token and store it
@@ -197,6 +241,17 @@ public class Main {
             tokenstoremove.clear();
         }
     }
+    public static void executeParser(){
+        Parser parser = new Parser(new ScannerCup(tokensbuffer));
+        try {
+            parser.parse();
+        } catch (Exception ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            Symbol sym = parser.getS();
+            System.out.println("DEBUG: Sintax Error, Line: " + (sym.right + 1) + ", Column: " + (sym.left + 1) + ", Token: " + sym.value);
+        }
+    }
+    
     /*Objective: This method was created to generate the table of
     the lexical analyzer for all the tokens*/
     public static void generateTable(){

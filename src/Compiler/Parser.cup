@@ -1,51 +1,101 @@
-package Parser;
+package Compiler;
+
 import java_cup.runtime.*;
 
 /* -------------------------------- Code -------------------------------- */
 parser code
 {:
-    //Connect to scanner
-    
-:}
+    private Symbol s;
+    //When a sintax error happens the following function catches it automatically
+    public void syntax_error(Symbol s){
+        this.s =s;
+        /*String token = s.value.toString();
+        int row = s.right;
+        int column = s.left;*/
 
+        //TODO add error
+    }
+
+    public Symbol getS(){
+        return this.s;
+    }
+:}
 
 /* -------------------------------- Terminals -------------------------------- */
 terminal    PRAGMA, SOLIDITY, CONSREAL;                                               //Head
-terminal    SEMICOLON, LBRACKET, RBRACKET, LBRACE, RBRACE, LPAREN, RPAREN, COMMA;     //Grammar symbols
-terminal    SEMICOLON, DOT, QUESTIONSIGN, COLON;                                      //Grammar symbols
+terminal    SEMICOLON, LBRACKET, RBRACKET, LBRACE, RBRACE, LPAREN, RPAREN;            //Grammar symbols
+terminal    COMMA, DOT, QUESTIONSIGN, COLON;                                          //Grammar symbols
 terminal    BOOL, BYTE, BYTES, ADDRESS, STRING, UFIXED, INTWITHSIGN, INTWITHOUTSIGN;  //Types
 terminal    PUBLIC, PRIVATE, PAYABLE, INTERNAL;                                       //Modifiers
-terminal    CONTRACT, ENUM, STRUCT, FUNCTION, RETURNS, THIS;                          //Reserved words
+terminal    CONTRACT, ENUM, STRUCT, FUNCTION, RETURNS, RETURN, THIS;                  //Reserved words
 terminal    WHILE, FOR, DO, IF, ELSE;                                                 //Control structures
 terminal    CONSSTRING, CONSINTEGER, CONSSCIENT, TRUE, FALSE;                         //Values, constants
-terminal    LOGICNEGATION, ARITMETICNEGATION, LOGICAND, ARITMETICEXOR, ARITMETICEQUAL;//Expressions
-terminal    LOGICDISTINCT, LOGICOR, ARITMETICLESSEQUALTHAN, ARITMETICLESSTHAN;        //Expressions
+terminal    ARITMETICNEGATION, LOGICAND, ARITMETICEXOR, ARITMETICEQUAL ;              //Expressions
+terminal    LOGICDISTINCT, LOGICOR, ARITMETICLESSEQUALTHAN, ARITMETICLESSTHAN,EQUAL;  //Expressions
 terminal    ARITMETICGREATEREQUALTHAN, ARITMETICGREATERTHAN, ARITMETICAND, ARITMETICOR;//Expressions
 terminal    SUM, SUBSTRACTION, MULTIPLICATION, DIVISION, MODULE, EXPONENTIATION;      //Expressions
 terminal    SHIFTRIGHT, SHIFTLEFT, SUMEQUAL, SUBEQUAL, MULTIEQUAL;                    //Expressions
 terminal    ID;
 
+//Other terminals declared on the scanner but no used on the grammar (because it was simplified)
+//They are declared here to avoid errors
+terminal    LOGICNEGATION, DIVEQUAL, AS, CONSSTRINGERROR, MULTICOMMENTERROR, HEX, VAR, WEI;
+terminal    ESCAPEERROR, CALL, DAYS, FROM, SEND, VIEW, BREAK, ETHER, HOURS, SZABO, WEEKS;
+terminal    YEARS, DELETE, FINNEY, CONSINTEGERHEX, IMPORT, BALANCE, MAPPING, MINUTES, SECONDS;
+terminal    CALLCODE, CONTINUE, MODIFIER, TRANSFER, CONSTRUCTOR, DELEGATECALL;
+
+
 /* -------------------------------- Non Terminals -------------------------------- */
-non terminal    code, head, body, version;                                                                                     //Head
-non terminal    contract, other_contract, contract_block;                                                                      //Contract
-non terminal    enums, enum_id, other_enum_id;                                                                                 //Enums
-non terminal    variables, type, array_modifier, array_length, variable_modifier;                                              //Variables
+non terminal    start_production, head, body, version, version_operator, experimental_version;                         //Start
+non terminal    contract, other_contract, contract_block;                                                              //Contract
+non terminal    enums, enum_id, other_enum_id;                                                                         //Enums
+non terminal    variables, type, array_modifier, array_length, variable_modifier;                                      //Variables
 non terminal    structures;
-non terminal    functions, function_parameters, other_function_parameters, function_modifier, function_return_value;           //Functions
-non terminal    function_block, statements, variable_assignment;                                                               //Function block
-non terminal    expression, conditional_expression, before_value, after_value, rest_of_expression, operator, value_expression; //Expression
+non terminal    functions, function_parameters, other_function_parameters, function_modifier, function_return_value;   //Functions
+non terminal    function_block, statements, variable_assignment;                                                       //Function block
+non terminal    expression, conditional_expression, rest_of_expression, operator, value_expression;                    //Expression
 non terminal    function_call, function_calling_params, other_function_calling_param;
-non terminal    control_structures, while_statement, for_statement, do_while_statement, if_statement, else_statement;          //Control structures
+non terminal    control_structures, while_statement, for_statement, do_while_statement, if_statement, else_statement;  //Control structures
 non terminal    return_statement, return_value, value, id_inside_function, id_inside_function_aux;
+non terminal    array_lenght;                                                                                          //Others
+
+/* -------------------------------- Precedences -------------------------------- */
+precedence left SUMEQUAL, SUBEQUAL, MULTIEQUAL;
+precedence left LOGICOR;
+precedence left LOGICAND;
+precedence left LOGICDISTINCT, ARITMETICEQUAL;
+precedence left ARITMETICGREATERTHAN, ARITMETICLESSTHAN, ARITMETICLESSEQUALTHAN, ARITMETICGREATEREQUALTHAN;
+precedence left ARITMETICOR;
+precedence left ARITMETICEXOR;
+precedence left ARITMETICAND;
+precedence left SHIFTRIGHT, SHIFTLEFT;
+precedence left SUM, SUBSTRACTION;
+precedence left MULTIPLICATION, DIVISION, MODULE;
+precedence left EXPONENTIATION;
 
 /* -------------------------------- Grammar -------------------------------- */
-code ::= head body
+start with start_production;
+
+start_production ::= head body
 ; 
-head ::= PRAGMA SOLIDITY version SEMICOLON
+head ::= PRAGMA SOLIDITY version experimental_version SEMICOLON
 ;
-version ::= ARITMETICEXOR CONSREAL CONSREAL
+experimental_version ::= version_operator CONSREAL CONSREAL
+                        | CONSREAL CONSREAL
+                        | //Empty
+;
+version ::= version_operator CONSREAL CONSREAL
             | CONSREAL CONSREAL
 ;
+version_operator ::= ARITMETICEXOR 
+                    | ARITMETICNEGATION
+                    | ARITMETICGREATEREQUALTHAN
+                    | ARITMETICGREATERTHAN
+                    | ARITMETICLESSTHAN
+                    | ARITMETICLESSEQUALTHAN
+                    | LOGICDISTINCT
+;
+
 body ::= contract other_contract 
 ;
 other_contract ::= body | //Empty
@@ -131,23 +181,11 @@ variable_assignment ::= id_inside_function EQUAL expression SEMICOLON
 // --- Expressions ---
 expression ::= LPAREN expression RPAREN conditional_expression rest_of_expression
 		| function_call rest_of_expression
-                | value_expression after_value  rest_of_expression
-                | before_value value_expression rest_of_expression
+                | value_expression rest_of_expression
 ;
 
 conditional_expression ::= QUESTIONSIGN expression COLON expression
 				| //EMPTY
-;
-
-before_value ::= /*(++)
-                | (--)
-                |*/ LOGICNEGATION
-                | ARITMETICNEGATION
-;
-
-after_value ::= /*(++)
-                | (--)
-                |*/ //EMPTY
 ;
 
 rest_of_expression ::= operator expression 				
@@ -206,6 +244,7 @@ if_statement ::= IF LPAREN expression RPAREN LBRACKET statements RBRACKET else_s
 ;
 else_statement ::= ELSE LBRACKET statements RBRACKET 
                    | //Empty
+;
 // --- Return ---
 return_statement ::= RETURN return_value SEMICOLON
 ;

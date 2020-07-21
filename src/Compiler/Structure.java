@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package LexicalAnalyzer;
+package Compiler;
 import java.util.ArrayList;
 /*Objective: This class was created to store objects of
 type token thinking on the next stage of making the parser*/
