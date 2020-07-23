@@ -45,10 +45,10 @@ public class Main {
         printErrors();
         
         //Parser
-        /*getParserRoute();
+        getParserRoute();
         generateParser();
         readTokensFile();
-        executeParser();*/
+        executeParser();
     }
     /*Objective: This method was created to assign the route 
     where the scanner is going to be located*/
@@ -101,7 +101,7 @@ public class Main {
     /*Objective: This method was created to specify the route
     where the tokens file to scan is located*/
     public static void getTokensFileRoute(){
-        String tokensfileroute = "../SolidityScanner/codigo_solidity.txt";
+        String tokensfileroute = "../SolidityScanner/PruebaEstructura.txt";
         newtokensfile = new FilesReader(tokensfileroute);
     }
     /*Objective: This method was created to open the tokens
@@ -202,7 +202,7 @@ public class Main {
         TokenOccurrence newtoken = new TokenOccurrence();
         newtoken.setType(type);
         newtoken.setValue(actualvalue);
-        newtoken.setLinenumber(actualline);
+        newtoken.setLinenumber(actualline + 1);
         newtoken.setOccurrences(occurrence);
         tokensoccurrences.add(newtoken);
     }

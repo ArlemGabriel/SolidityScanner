@@ -25,7 +25,7 @@
     BOOL = bool
     BREAK = break
     BYTE = byte
-    BYTES = (bytes)[1,2,3,4,5,6,7,8]
+    BYTES = (bytes)[1,2,3,4,5,6,7,8]?
     CONSTRUCTOR = constructor
     CONTINUE = continue
     CONTRACT = contract
@@ -117,7 +117,7 @@
     MULTICOMMENT = \/\*\*([^*]|(\*+[^*/]))*\*+\/
     MULTICOMMENTERROR = \/\*\*([^*]|(\*+[^*/]))*
     ID = [a-zA-Z]{1}[a-zA-Z|0-9|_]*
-    BLANKSPACE = [ ,\t,\r,\n]+
+    BLANKSPACE = [ |\t|\r|\n]+
     CONSINTEGER = [0-9]+
     CONSREAL = [0-9]*[.][0-9]+|[0-9]+[.][0-9]*
     CONSSCIENT = (-)[0-9]+(e)[0-9]+|[0-9]+(e)[0-9]+|[0-9]+(e)(-)[0-9]+|(-)[0-9]+(e)(-)[0-9]+|[0-9]+(.)[0-9]+(e)[0-9]+|(-)[0-9]+(.)[0-9]+(e)[0-9]+|[0-9]+(.)[0-9]+(e)(-)[0-9]+|(-)[0-9]+(.)[0-9]+(e)(-)[0-9]+

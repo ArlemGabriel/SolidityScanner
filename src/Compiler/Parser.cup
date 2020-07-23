@@ -9,11 +9,6 @@ parser code
     //When a sintax error happens the following function catches it automatically
     public void syntax_error(Symbol s){
         this.s =s;
-        /*String token = s.value.toString();
-        int row = s.right;
-        int column = s.left;*/
-
-        //TODO add error
     }
 
     public Symbol getS(){
@@ -54,10 +49,9 @@ non terminal    structures;
 non terminal    functions, function_parameters, other_function_parameters, function_modifier, function_return_value;   //Functions
 non terminal    function_block, statements, variable_assignment;                                                       //Function block
 non terminal    expression, conditional_expression, rest_of_expression, operator, value_expression;                    //Expression
-non terminal    function_call, function_calling_params, other_function_calling_param;
+non terminal    function_call, function_calling_params, other_function_calling_param;                                  //Function call
 non terminal    control_structures, while_statement, for_statement, do_while_statement, if_statement, else_statement;  //Control structures
 non terminal    return_statement, return_value, value, id_inside_function, id_inside_function_aux;
-non terminal    array_lenght;                                                                                          //Others
 
 /* -------------------------------- Precedences -------------------------------- */
 precedence left SUMEQUAL, SUBEQUAL, MULTIEQUAL;
@@ -72,6 +66,7 @@ precedence left SHIFTRIGHT, SHIFTLEFT;
 precedence left SUM, SUBSTRACTION;
 precedence left MULTIPLICATION, DIVISION, MODULE;
 precedence left EXPONENTIATION;
+precedence left ID;
 
 /* -------------------------------- Grammar -------------------------------- */
 start with start_production;
@@ -118,8 +113,8 @@ other_enum_id ::= COMMA ID other_enum_id
 ;
 
 // *** Variables ***
-variables ::= type array_modifier variable_modifier ID SEMICOLON variables 
-            | //Empty
+variables ::= type array_modifier variable_modifier ID SEMICOLON variables
+            | //Empty 
 ;
 type ::= BOOL 
         | BYTE 
@@ -129,10 +124,14 @@ type ::= BOOL
         | UFIXED 
         | INTWITHSIGN 
         | INTWITHOUTSIGN
+        | ID
 ;
-array_modifier ::= LBRACE array_lenght RBRACE | //Empty
+array_modifier ::= LBRACE array_length RBRACE
+                | //Empty
 ;
-array_length ::= CONSINTEGER //Easy to modify if it is needed arrays of multiples dimensions
+//Easy to modify if it is needed arrays of multiples dimensions
+array_length ::= CONSINTEGER
+                | //Empty
 ;
 variable_modifier ::= PUBLIC 
                 | PRIVATE 
@@ -175,7 +174,7 @@ statements ::= variable_assignment statements
 
 // +++ Functions statements +++
 // --- Assignment ---
-variable_assignment ::= id_inside_function EQUAL expression SEMICOLON
+variable_assignment ::= id_inside_function EQUAL expression SEMICOLON {:System.out.println("BBBBBBBBBBB ");:}
 ;
 
 // --- Expressions ---
@@ -222,10 +221,10 @@ value_expression ::= value
 // --- Function calling ---
 function_call ::= id_inside_function LPAREN function_calling_params RPAREN SEMICOLON
 ;
-function_calling_params ::= id_inside_function other_function_calling_param 
+function_calling_params ::= expression other_function_calling_param 
                         | //Empty
 ;
-other_function_calling_param ::= COMMA id_inside_function 
+other_function_calling_param ::= COMMA expression
                                 | //Empty
 ;			
 // --- Control structures ---
@@ -258,9 +257,9 @@ value ::= CONSSTRING
         | FALSE
 ;
 // --- Aux id for inside functions context ---
-id_inside_function ::= ID id_inside_function_aux 
-                    | THIS DOT ID 
+id_inside_function ::= ID:a id_inside_function_aux {:System.out.println("AAAAAAAAAAAA " + a);:}
+                    | THIS DOT ID {:System.out.println("CCCCCCCC ");:}
 ;
-id_inside_function_aux ::= DOT ID 
-                        | //Empty
+id_inside_function_aux ::= DOT ID {:System.out.println("DDDDDDDDD");:}
+                        | //Empty {:System.out.println("FFFFFFFFFFFFF");:}
 ;

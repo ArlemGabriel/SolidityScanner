@@ -34,7 +34,7 @@
     BOOL = bool
     BREAK = break
     BYTE = byte
-    BYTES = (bytes)[1,2,3,4,5,6,7,8]
+    BYTES = (bytes)[1,2,3,4,5,6,7,8]?
     CONSTRUCTOR = constructor
     CONTINUE = continue
     CONTRACT = contract
@@ -126,7 +126,7 @@
     MULTICOMMENT = \/\*\*([^*]|(\*+[^*/]))*\*+\/
     MULTICOMMENTERROR = \/\*\*([^*]|(\*+[^*/]))*
     ID = [a-zA-Z]{1}[a-zA-Z|0-9|_]*
-    BLANKSPACE = [ ,\t,\r,\n]+
+    BLANKSPACE = [ |\t|\r|\n]+
     CONSINTEGER = [0-9]+
     CONSREAL = [0-9]*[.][0-9]+|[0-9]+[.][0-9]*
     CONSSCIENT = (-)[0-9]+(e)[0-9]+|[0-9]+(e)[0-9]+|[0-9]+(e)(-)[0-9]+|(-)[0-9]+(e)(-)[0-9]+|[0-9]+(.)[0-9]+(e)[0-9]+|(-)[0-9]+(.)[0-9]+(e)[0-9]+|[0-9]+(.)[0-9]+(e)(-)[0-9]+|(-)[0-9]+(.)[0-9]+(e)(-)[0-9]+
@@ -142,118 +142,118 @@
 //*****************************************
 //  LEXICAL RULES
 //*****************************************
-    {ADDRESS} {return new Symbol (sym.ADDRESS,  (int) yychar,yyline, yytext());}
-    {AS} {return new Symbol (sym.AS,  (int) yychar,yyline, yytext());}
-    {BOOL} {return new Symbol (sym.BOOL,  (int) yychar,yyline, yytext());}
-    {BREAK} {return new Symbol (sym.BREAK,  (int) yychar,yyline, yytext());}
-    {BYTE} {return new Symbol (sym.BYTE,  (int) yychar,yyline, yytext());}
-    {BYTES} {return new Symbol (sym.BYTES,  (int) yychar,yyline, yytext());}
-    {CONSTRUCTOR} {return new Symbol (sym.CONSTRUCTOR,  (int) yychar,yyline, yytext());}
-    {CONTINUE} {return new Symbol (sym.CONTINUE,  (int) yychar,yyline, yytext());}
-    {CONTRACT} {return new Symbol (sym.CONTRACT,  (int) yychar,yyline, yytext());}
-    {DELETE} {return new Symbol (sym.DELETE,  (int) yychar,yyline, yytext());}
-    {DO} {return new Symbol (sym.DO,  (int) yychar,yyline, yytext());}
-    {ELSE} {return new Symbol (sym.ELSE,  (int) yychar,yyline, yytext());}
-    {ENUM} {return new Symbol (sym.ENUM,  (int) yychar,yyline, yytext());}
-    {FALSE} {return new Symbol (sym.FALSE,  (int) yychar,yyline, yytext());}
-    {FOR} {return new Symbol (sym.FOR,  (int) yychar,yyline, yytext());}
-    {FROM} {return new Symbol (sym.FROM,  (int) yychar,yyline, yytext());}
-    {FUNCTION} {return new Symbol (sym.FUNCTION,  (int) yychar,yyline, yytext());}
+    {ADDRESS} {return new Symbol (sym.ADDRESS,  yycolumn,yyline, yytext());}
+    {AS} {return new Symbol (sym.AS,  yycolumn,yyline, yytext());}
+    {BOOL} {return new Symbol (sym.BOOL,  yycolumn,yyline, yytext());}
+    {BREAK} {return new Symbol (sym.BREAK,  yycolumn,yyline, yytext());}
+    {BYTE} {return new Symbol (sym.BYTE,  yycolumn,yyline, yytext());}
+    {BYTES} {return new Symbol (sym.BYTES,  yycolumn,yyline, yytext());}
+    {CONSTRUCTOR} {return new Symbol (sym.CONSTRUCTOR,  yycolumn,yyline, yytext());}
+    {CONTINUE} {return new Symbol (sym.CONTINUE,  yycolumn,yyline, yytext());}
+    {CONTRACT} {return new Symbol (sym.CONTRACT,  yycolumn,yyline, yytext());}
+    {DELETE} {return new Symbol (sym.DELETE,  yycolumn,yyline, yytext());}
+    {DO} {return new Symbol (sym.DO,  yycolumn,yyline, yytext());}
+    {ELSE} {return new Symbol (sym.ELSE,  yycolumn,yyline, yytext());}
+    {ENUM} {return new Symbol (sym.ENUM,  yycolumn,yyline, yytext());}
+    {FALSE} {return new Symbol (sym.FALSE,  yycolumn,yyline, yytext());}
+    {FOR} {return new Symbol (sym.FOR,  yycolumn,yyline, yytext());}
+    {FROM} {return new Symbol (sym.FROM,  yycolumn,yyline, yytext());}
+    {FUNCTION} {return new Symbol (sym.FUNCTION,  yycolumn,yyline, yytext());}
     
-    {CONSINTEGERHEX} {return new Symbol (sym.CONSINTEGERHEX,  (int) yychar,yyline, yytext());}
+    {CONSINTEGERHEX} {return new Symbol (sym.CONSINTEGERHEX,  yycolumn,yyline, yytext());}
 
-    {HEX} {return new Symbol (sym.HEX,  (int) yychar,yyline, yytext());}
-    {IF} {return new Symbol (sym.IF,  (int) yychar,yyline, yytext());}
-    {IMPORT} {return new Symbol (sym.IMPORT,  (int) yychar,yyline, yytext());}
-    {INTERNAL} {return new Symbol (sym.INTERNAL,  (int) yychar,yyline, yytext());}
-    {MAPPING} {return new Symbol (sym.MAPPING,  (int) yychar,yyline, yytext());}
-    {MODIFIER} {return new Symbol (sym.MODIFIER,  (int) yychar,yyline, yytext());}
-    {PAYABLE} {return new Symbol (sym.PAYABLE,  (int) yychar,yyline, yytext());}
-    {PRAGMA} {return new Symbol (sym.PRAGMA,  (int) yychar,yyline, yytext());}
-    {PRIVATE} {return new Symbol (sym.PRIVATE,  (int) yychar,yyline, yytext());}
-    {PUBLIC} {return new Symbol (sym.PUBLIC,  (int) yychar,yyline, yytext());}
-    {RETURN} {return new Symbol (sym.RETURN,  (int) yychar,yyline, yytext());}
-    {RETURNS} {return new Symbol (sym.RETURNS,  (int) yychar,yyline, yytext());}
-    {SOLIDITY} {return new Symbol (sym.SOLIDITY,  (int) yychar,yyline, yytext());}
-    {STRING} {return new Symbol (sym.STRING,  (int) yychar,yyline, yytext());}
-    {STRUCT} {return new Symbol (sym.STRUCT,  (int) yychar,yyline, yytext());}
-    {THIS} {return new Symbol (sym.THIS,  (int) yychar,yyline, yytext());}
-    {TRUE} {return new Symbol (sym.TRUE,  (int) yychar,yyline, yytext());}
-    {UFIXED} {return new Symbol (sym.UFIXED,  (int) yychar,yyline, yytext());}
-    {VAR} {return new Symbol (sym.VAR,  (int) yychar,yyline, yytext());}
-    {VIEW} {return new Symbol (sym.VIEW,  (int) yychar,yyline, yytext());}
-    {WHILE} {return new Symbol (sym.WHILE,  (int) yychar,yyline, yytext());}
-    {BALANCE} {return new Symbol (sym.BALANCE,  (int) yychar,yyline, yytext());}
-    {CALL} {return new Symbol (sym.CALL,  (int) yychar,yyline, yytext());}
-    {CALLCODE} {return new Symbol (sym.CALLCODE,  (int) yychar,yyline, yytext());}
-    {DELEGATECALL} {return new Symbol (sym.DELEGATECALL,  (int) yychar,yyline, yytext());}
-    {SEND} {return new Symbol (sym.SEND,  (int) yychar,yyline, yytext());}
-    {TRANSFER} {return new Symbol (sym.TRANSFER,  (int) yychar,yyline, yytext());}
-    {DAYS} {return new Symbol (sym.DAYS,  (int) yychar,yyline, yytext());}
-    {ETHER} {return new Symbol (sym.ETHER,  (int) yychar,yyline, yytext());}
-    {FINNEY} {return new Symbol (sym.FINNEY,  (int) yychar,yyline, yytext());}
-    {HOURS} {return new Symbol (sym.HOURS,  (int) yychar,yyline, yytext());}
-    {MINUTES} {return new Symbol (sym.MINUTES,  (int) yychar,yyline, yytext());}
-    {SECONDS} {return new Symbol (sym.SECONDS,  (int) yychar,yyline, yytext());}
-    {SZABO} {return new Symbol (sym.SZABO,  (int) yychar,yyline, yytext());}
-    {WEEKS} {return new Symbol (sym.WEEKS,  (int) yychar,yyline, yytext());}
-    {WEI} {return new Symbol (sym.WEI,  (int) yychar,yyline, yytext());}
-    {YEARS} {return new Symbol (sym.YEARS,  (int) yychar,yyline, yytext());}
+    {HEX} {return new Symbol (sym.HEX,  yycolumn,yyline, yytext());}
+    {IF} {return new Symbol (sym.IF,  yycolumn,yyline, yytext());}
+    {IMPORT} {return new Symbol (sym.IMPORT,  yycolumn,yyline, yytext());}
+    {INTERNAL} {return new Symbol (sym.INTERNAL,  yycolumn,yyline, yytext());}
+    {MAPPING} {return new Symbol (sym.MAPPING,  yycolumn,yyline, yytext());}
+    {MODIFIER} {return new Symbol (sym.MODIFIER,  yycolumn,yyline, yytext());}
+    {PAYABLE} {return new Symbol (sym.PAYABLE,  yycolumn,yyline, yytext());}
+    {PRAGMA} {return new Symbol (sym.PRAGMA,  yycolumn,yyline, yytext());}
+    {PRIVATE} {return new Symbol (sym.PRIVATE,  yycolumn,yyline, yytext());}
+    {PUBLIC} {return new Symbol (sym.PUBLIC,  yycolumn,yyline, yytext());}
+    {RETURN} {return new Symbol (sym.RETURN,  yycolumn,yyline, yytext());}
+    {RETURNS} {return new Symbol (sym.RETURNS,  yycolumn,yyline, yytext());}
+    {SOLIDITY} {return new Symbol (sym.SOLIDITY,  yycolumn,yyline, yytext());}
+    {STRING} {return new Symbol (sym.STRING,  yycolumn,yyline, yytext());}
+    {STRUCT} {return new Symbol (sym.STRUCT,  yycolumn,yyline, yytext());}
+    {THIS} {return new Symbol (sym.THIS,  yycolumn,yyline, yytext());}
+    {TRUE} {return new Symbol (sym.TRUE,  yycolumn,yyline, yytext());}
+    {UFIXED} {return new Symbol (sym.UFIXED,  yycolumn,yyline, yytext());}
+    {VAR} {return new Symbol (sym.VAR,  yycolumn,yyline, yytext());}
+    {VIEW} {return new Symbol (sym.VIEW,  yycolumn,yyline, yytext());}
+    {WHILE} {return new Symbol (sym.WHILE,  yycolumn,yyline, yytext());}
+    {BALANCE} {return new Symbol (sym.BALANCE,  yycolumn,yyline, yytext());}
+    {CALL} {return new Symbol (sym.CALL,  yycolumn,yyline, yytext());}
+    {CALLCODE} {return new Symbol (sym.CALLCODE,  yycolumn,yyline, yytext());}
+    {DELEGATECALL} {return new Symbol (sym.DELEGATECALL,  yycolumn,yyline, yytext());}
+    {SEND} {return new Symbol (sym.SEND,  yycolumn,yyline, yytext());}
+    {TRANSFER} {return new Symbol (sym.TRANSFER,  yycolumn,yyline, yytext());}
+    {DAYS} {return new Symbol (sym.DAYS,  yycolumn,yyline, yytext());}
+    {ETHER} {return new Symbol (sym.ETHER,  yycolumn,yyline, yytext());}
+    {FINNEY} {return new Symbol (sym.FINNEY,  yycolumn,yyline, yytext());}
+    {HOURS} {return new Symbol (sym.HOURS,  yycolumn,yyline, yytext());}
+    {MINUTES} {return new Symbol (sym.MINUTES,  yycolumn,yyline, yytext());}
+    {SECONDS} {return new Symbol (sym.SECONDS,  yycolumn,yyline, yytext());}
+    {SZABO} {return new Symbol (sym.SZABO,  yycolumn,yyline, yytext());}
+    {WEEKS} {return new Symbol (sym.WEEKS,  yycolumn,yyline, yytext());}
+    {WEI} {return new Symbol (sym.WEI,  yycolumn,yyline, yytext());}
+    {YEARS} {return new Symbol (sym.YEARS,  yycolumn,yyline, yytext());}
 
-    {LOGICNEGATION} {return new Symbol (sym.LOGICNEGATION,  (int) yychar,yyline, yytext());}
-    {LOGICAND} {return new Symbol (sym.LOGICAND,  (int) yychar,yyline, yytext());}
-    {ARITMETICEXOR} {return new Symbol (sym.ARITMETICEXOR,  (int) yychar,yyline, yytext());}
-    {ARITMETICEQUAL} {return new Symbol (sym.ARITMETICEQUAL,  (int) yychar,yyline, yytext());}
-    {LOGICDISTINCT} {return new Symbol (sym.LOGICDISTINCT,  (int) yychar,yyline, yytext());}
-    {LOGICOR} {return new Symbol (sym.LOGICOR,  (int) yychar,yyline, yytext());}
-    {ARITMETICLESSEQUALTHAN} {return new Symbol (sym.ARITMETICLESSEQUALTHAN,  (int) yychar,yyline, yytext());}
-    {ARITMETICLESSTHAN} {return new Symbol (sym.ARITMETICLESSTHAN,  (int) yychar,yyline, yytext());}
-    {ARITMETICGREATEREQUALTHAN} {return new Symbol (sym.ARITMETICGREATEREQUALTHAN,  (int) yychar,yyline, yytext());}
-    {ARITMETICGREATERTHAN} {return new Symbol (sym.ARITMETICGREATERTHAN,  (int) yychar,yyline, yytext());}
-    {ARITMETICAND} {return new Symbol (sym.ARITMETICAND,  (int) yychar,yyline, yytext());}
-    {ARITMETICOR} {return new Symbol (sym.ARITMETICOR,  (int) yychar,yyline, yytext());}
-    {ARITMETICNEGATION} {return new Symbol (sym.ARITMETICNEGATION,  (int) yychar,yyline, yytext());}
-    {SUM} {return new Symbol (sym.SUM,  (int) yychar,yyline, yytext());}
-    {SUBSTRACTION} {return new Symbol (sym.SUBSTRACTION,  (int) yychar,yyline, yytext());}
-    {MULTIPLICATION} {return new Symbol (sym.MULTIPLICATION,  (int) yychar,yyline, yytext());}
+    {LOGICNEGATION} {return new Symbol (sym.LOGICNEGATION,  yycolumn,yyline, yytext());}
+    {LOGICAND} {return new Symbol (sym.LOGICAND,  yycolumn,yyline, yytext());}
+    {ARITMETICEXOR} {return new Symbol (sym.ARITMETICEXOR,  yycolumn,yyline, yytext());}
+    {ARITMETICEQUAL} {return new Symbol (sym.ARITMETICEQUAL,  yycolumn,yyline, yytext());}
+    {LOGICDISTINCT} {return new Symbol (sym.LOGICDISTINCT,  yycolumn,yyline, yytext());}
+    {LOGICOR} {return new Symbol (sym.LOGICOR,  yycolumn,yyline, yytext());}
+    {ARITMETICLESSEQUALTHAN} {return new Symbol (sym.ARITMETICLESSEQUALTHAN,  yycolumn,yyline, yytext());}
+    {ARITMETICLESSTHAN} {return new Symbol (sym.ARITMETICLESSTHAN,  yycolumn,yyline, yytext());}
+    {ARITMETICGREATEREQUALTHAN} {return new Symbol (sym.ARITMETICGREATEREQUALTHAN,  yycolumn,yyline, yytext());}
+    {ARITMETICGREATERTHAN} {return new Symbol (sym.ARITMETICGREATERTHAN,  yycolumn,yyline, yytext());}
+    {ARITMETICAND} {return new Symbol (sym.ARITMETICAND,  yycolumn,yyline, yytext());}
+    {ARITMETICOR} {return new Symbol (sym.ARITMETICOR,  yycolumn,yyline, yytext());}
+    {ARITMETICNEGATION} {return new Symbol (sym.ARITMETICNEGATION,  yycolumn,yyline, yytext());}
+    {SUM} {return new Symbol (sym.SUM,  yycolumn,yyline, yytext());}
+    {SUBSTRACTION} {return new Symbol (sym.SUBSTRACTION,  yycolumn,yyline, yytext());}
+    {MULTIPLICATION} {return new Symbol (sym.MULTIPLICATION,  yycolumn,yyline, yytext());}
     {SINGLECOMMENT} {/*IGNORE*/}
-    {DIVISION} {return new Symbol (sym.DIVISION,  (int) yychar,yyline, yytext());}
-    {MODULE} {return new Symbol (sym.MODULE,  (int) yychar,yyline, yytext());}
-    {EXPONENTIATION} {return new Symbol (sym.EXPONENTIATION,  (int) yychar,yyline, yytext());}
-    {SHIFTRIGHT} {return new Symbol (sym.SHIFTRIGHT,  (int) yychar,yyline, yytext());}
-    {SHIFTLEFT} {return new Symbol (sym.SHIFTLEFT,  (int) yychar,yyline, yytext());}
-    {EQUAL} {return new Symbol (sym.EQUAL,  (int) yychar,yyline, yytext());}
-    {COMMA} {return new Symbol (sym.COMMA,  (int) yychar,yyline, yytext());}
-    {SEMICOLON} {return new Symbol (sym.SEMICOLON,  (int) yychar,yyline, yytext());}
-    {DOT} {return new Symbol (sym.DOT,  (int) yychar,yyline, yytext());}
-    {LBRACKET} {return new Symbol (sym.LBRACKET,  (int) yychar,yyline, yytext());}
-    {RBRACKET} {return new Symbol (sym.RBRACKET,  (int) yychar,yyline, yytext());}
-    {LPAREN} {return new Symbol (sym.LPAREN,  (int) yychar,yyline, yytext());}
-    {RPAREN} {return new Symbol (sym.RPAREN,  (int) yychar,yyline, yytext());}
-    {LBRACE} {return new Symbol (sym.LBRACE,  (int) yychar,yyline, yytext());}
-    {RBRACE} {return new Symbol (sym.RBRACE,  (int) yychar,yyline, yytext());}
-    {QUESTIONSIGN} {return new Symbol (sym.QUESTIONSIGN,  (int) yychar,yyline, yytext());}
-    {COLON} {return new Symbol (sym.COLON,  (int) yychar,yyline, yytext());}
-    {SUMEQUAL} {return new Symbol (sym.SUMEQUAL,  (int) yychar,yyline, yytext());}
-    {SUBEQUAL} {return new Symbol (sym.SUBEQUAL,  (int) yychar,yyline, yytext());}
-    {MULTIEQUAL} {return new Symbol (sym.MULTIEQUAL,  (int) yychar,yyline, yytext());}
-    {DIVEQUAL} {return new Symbol (sym.DIVEQUAL,  (int) yychar,yyline, yytext());}
+    {DIVISION} {return new Symbol (sym.DIVISION,  yycolumn,yyline, yytext());}
+    {MODULE} {return new Symbol (sym.MODULE,  yycolumn,yyline, yytext());}
+    {EXPONENTIATION} {return new Symbol (sym.EXPONENTIATION,  yycolumn,yyline, yytext());}
+    {SHIFTRIGHT} {return new Symbol (sym.SHIFTRIGHT,  yycolumn,yyline, yytext());}
+    {SHIFTLEFT} {return new Symbol (sym.SHIFTLEFT,  yycolumn,yyline, yytext());}
+    {EQUAL} {return new Symbol (sym.EQUAL,  yycolumn,yyline, yytext());}
+    {COMMA} {return new Symbol (sym.COMMA,  yycolumn,yyline, yytext());}
+    {SEMICOLON} {return new Symbol (sym.SEMICOLON,  yycolumn,yyline, yytext());}
+    {DOT} {return new Symbol (sym.DOT,  yycolumn,yyline, yytext());}
+    {LBRACKET} {return new Symbol (sym.LBRACKET,  yycolumn,yyline, yytext());}
+    {RBRACKET} {return new Symbol (sym.RBRACKET,  yycolumn,yyline, yytext());}
+    {LPAREN} {return new Symbol (sym.LPAREN,  yycolumn,yyline, yytext());}
+    {RPAREN} {return new Symbol (sym.RPAREN,  yycolumn,yyline, yytext());}
+    {LBRACE} {return new Symbol (sym.LBRACE,  yycolumn,yyline, yytext());}
+    {RBRACE} {return new Symbol (sym.RBRACE,  yycolumn,yyline, yytext());}
+    {QUESTIONSIGN} {return new Symbol (sym.QUESTIONSIGN,  yycolumn,yyline, yytext());}
+    {COLON} {return new Symbol (sym.COLON,  yycolumn,yyline, yytext());}
+    {SUMEQUAL} {return new Symbol (sym.SUMEQUAL,  yycolumn,yyline, yytext());}
+    {SUBEQUAL} {return new Symbol (sym.SUBEQUAL,  yycolumn,yyline, yytext());}
+    {MULTIEQUAL} {return new Symbol (sym.MULTIEQUAL,  yycolumn,yyline, yytext());}
+    {DIVEQUAL} {return new Symbol (sym.DIVEQUAL,  yycolumn,yyline, yytext());}
     
-    {CONSSCIENT} {return new Symbol (sym.CONSSCIENT,  (int) yychar,yyline, yytext());}
+    {CONSSCIENT} {return new Symbol (sym.CONSSCIENT,  yycolumn,yyline, yytext());}
     {INVALIDID} {/*return INVALID_IDENTIFIER;*/}
     
     {MULTICOMMENT} {/*IGNORE*/}
-    {MULTICOMMENTERROR} {return new Symbol (sym.MULTICOMMENTERROR,  (int) yychar,yyline, yytext());}
-    {INTWITHSIGN} {return new Symbol (sym.INTWITHSIGN,  (int) yychar,yyline, yytext());}
-    {INTWITHOUTSIGN} {return new Symbol (sym.INTWITHOUTSIGN,  (int) yychar,yyline, yytext());}
-    {CONSSTRING} {return new Symbol (sym.CONSSTRING,  (int) yychar,yyline, yytext());}
-    {ESCAPEERROR} {return new Symbol (sym.ESCAPEERROR,  (int) yychar,yyline, yytext());}
-    {CONSSTRINGERROR} {return new Symbol (sym.CONSSTRINGERROR,  (int) yychar,yyline, yytext());}
-    {ID} {return new Symbol (sym.ID, (int) yychar,yyline, yytext());}
-    {CONSINTEGER} {return new Symbol (sym.CONSINTEGER,  (int) yychar,yyline, yytext());}
-    {CONSREAL} {return new Symbol (sym.CONSREAL,  (int) yychar,yyline, yytext());}
+    {MULTICOMMENTERROR} {return new Symbol (sym.MULTICOMMENTERROR,  yycolumn,yyline, yytext());}
+    {INTWITHSIGN} {return new Symbol (sym.INTWITHSIGN,  yycolumn,yyline, yytext());}
+    {INTWITHOUTSIGN} {return new Symbol (sym.INTWITHOUTSIGN,  yycolumn,yyline, yytext());}
+    {CONSSTRING} {return new Symbol (sym.CONSSTRING,  yycolumn,yyline, yytext());}
+    {ESCAPEERROR} {return new Symbol (sym.ESCAPEERROR,  yycolumn,yyline, yytext());}
+    {CONSSTRINGERROR} {return new Symbol (sym.CONSSTRINGERROR,  yycolumn,yyline, yytext());}
+    {ID} {return new Symbol (sym.ID, yycolumn,yyline, yytext());}
+    {CONSINTEGER} {return new Symbol (sym.CONSINTEGER,  yycolumn,yyline, yytext());}
+    {CONSREAL} {return new Symbol (sym.CONSREAL,  yycolumn,yyline, yytext());}
     
-    {ADDRESS} {return new Symbol (sym.ADDRESS,  (int) yychar,yyline, yytext());}
+    {ADDRESS} {return new Symbol (sym.ADDRESS,  yycolumn,yyline, yytext());}
     {QUOTEERROR} {/*return QUOTEERROR;*/}
     {BLANKSPACE} {/*IGNORE*/}
     {INVALIDCHAR} {/*return INVALID_CHARACTER;*/}
