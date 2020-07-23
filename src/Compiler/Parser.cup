@@ -23,7 +23,7 @@ terminal    COMMA, DOT, QUESTIONSIGN, COLON;                                    
 terminal    BOOL, BYTE, BYTES, ADDRESS, STRING, UFIXED, INTWITHSIGN, INTWITHOUTSIGN;  //Types
 terminal    PUBLIC, PRIVATE, PAYABLE, INTERNAL;                                       //Modifiers
 terminal    CONTRACT, ENUM, STRUCT, FUNCTION, RETURNS, RETURN, THIS;                  //Reserved words
-terminal    WHILE, FOR, DO, IF, ELSE;                                                 //Control structures
+terminal    WHILE, FOR, DO, IF, ELSE, BREAK, CONTINUE;                                //Control structures
 terminal    CONSSTRING, CONSINTEGER, CONSSCIENT, TRUE, FALSE;                         //Values, constants
 terminal    ARITMETICNEGATION, LOGICAND, ARITMETICEXOR, ARITMETICEQUAL ;              //Expressions
 terminal    LOGICDISTINCT, LOGICOR, ARITMETICLESSEQUALTHAN, ARITMETICLESSTHAN,EQUAL;  //Expressions
@@ -35,9 +35,9 @@ terminal    ID;
 //Other terminals declared on the scanner but no used on the grammar (because it was simplified)
 //They are declared here to avoid errors
 terminal    LOGICNEGATION, DIVEQUAL, AS, CONSSTRINGERROR, MULTICOMMENTERROR, HEX, VAR, WEI;
-terminal    ESCAPEERROR, CALL, DAYS, FROM, SEND, VIEW, BREAK, ETHER, HOURS, SZABO, WEEKS;
+terminal    ESCAPEERROR, CALL, DAYS, FROM, SEND, VIEW, ETHER, HOURS, SZABO, WEEKS;
 terminal    YEARS, DELETE, FINNEY, CONSINTEGERHEX, IMPORT, BALANCE, MAPPING, MINUTES, SECONDS;
-terminal    CALLCODE, CONTINUE, MODIFIER, TRANSFER, CONSTRUCTOR, DELEGATECALL;
+terminal    CALLCODE, MODIFIER, TRANSFER, CONSTRUCTOR, DELEGATECALL;
 
 
 /* -------------------------------- Non Terminals -------------------------------- */
@@ -45,12 +45,13 @@ non terminal    start_production, head, body, version, version_operator, experim
 non terminal    contract, other_contract, contract_block;                                                              //Contract
 non terminal    enums, enum_id, other_enum_id;                                                                         //Enums
 non terminal    variables, type, array_modifier, array_length, variable_modifier;                                      //Variables
-non terminal    structures;
+non terminal    structures, aux_variables, other_variables, variable_optional_assignment, value_assignment;
 non terminal    functions, function_parameters, other_function_parameters, function_modifier, function_return_value;   //Functions
 non terminal    function_block, statements, variable_assignment;                                                       //Function block
 non terminal    expression, conditional_expression, rest_of_expression, operator, value_expression;                    //Expression
 non terminal    function_call, function_calling_params, other_function_calling_param;                                  //Function call
 non terminal    control_structures, while_statement, for_statement, do_while_statement, if_statement, else_statement;  //Control structures
+non terminal    loop_statement;
 non terminal    return_statement, return_value, value, id_inside_function, id_inside_function_aux;
 
 /* -------------------------------- Precedences -------------------------------- */
@@ -66,7 +67,6 @@ precedence left SHIFTRIGHT, SHIFTLEFT;
 precedence left SUM, SUBSTRACTION;
 precedence left MULTIPLICATION, DIVISION, MODULE;
 precedence left EXPONENTIATION;
-precedence left ID;
 
 /* -------------------------------- Grammar -------------------------------- */
 start with start_production;
@@ -103,7 +103,7 @@ contract_block ::= enums variables structures functions
 ;
 
 // *** Enums ***
-enums ::= ENUM LBRACKET enum_id RBRACKET enums 
+enums ::= ENUM ID LBRACKET enum_id RBRACKET enums 
         | //Empty
 ;
 enum_id ::= ID other_enum_id 
@@ -113,9 +113,25 @@ other_enum_id ::= COMMA ID other_enum_id
 ;
 
 // *** Variables ***
-variables ::= type array_modifier variable_modifier ID SEMICOLON variables
+variables ::= type array_modifier aux_variables SEMICOLON variables
             | //Empty 
 ;
+
+aux_variables ::=  variable_modifier ID variable_optional_assignment other_variables
+;
+
+variable_optional_assignment ::= EQUAL value_assignment
+                                | //Empty
+;
+
+other_variables ::= COMMA aux_variables
+                    | {:System.out.println("PPPPPPPPPPP");:}//Empty
+;
+
+value_assignment ::= value {:System.out.println("AAAAAAAAAAAAA");:}
+                    | ID {:System.out.println("BBBBBBBBBBBB");:}
+;
+
 type ::= BOOL 
         | BYTE 
         | BYTES 
@@ -123,11 +139,11 @@ type ::= BOOL
         | STRING 
         | UFIXED 
         | INTWITHSIGN 
-        | INTWITHOUTSIGN
-        | ID
+        | INTWITHOUTSIGN {:System.out.println("KKKKKKKKKKKKKKKKKKKKK");:}
+        //| ID
 ;
 array_modifier ::= LBRACE array_length RBRACE
-                | //Empty
+                | {:System.out.println("LLLLLLLLLLLLLLL");:}//Empty
 ;
 //Easy to modify if it is needed arrays of multiples dimensions
 array_length ::= CONSINTEGER
@@ -135,7 +151,7 @@ array_length ::= CONSINTEGER
 ;
 variable_modifier ::= PUBLIC 
                 | PRIVATE 
-                | //Empty
+                | {:System.out.println("JJJJJJJJJJJJJJJJJ");:} //Empty
 ;
 
 // *** Structures ***
@@ -159,70 +175,73 @@ function_modifier ::= PAYABLE
                     | INTERNAL 
                     | //Empty
 ;
-function_return_value ::= RETURNS LPAREN type ID RPAREN 
+function_return_value ::= RETURNS LPAREN type ID RPAREN
                         | //Empty
 ;
 // +++ Functions block +++
 function_block ::= variables statements
 ;
-statements ::= variable_assignment statements 
-            | expression SEMICOLON statements 
+statements ::= variable_assignment statements
+            | expression SEMICOLON statements
             | control_structures statements 
             | return_statement statements 
-            | //Empty
+            | {:System.out.println("XXXXXXXXXXXXXXX");:}//Empty 
 ;
 
 // +++ Functions statements +++
 // --- Assignment ---
-variable_assignment ::= id_inside_function EQUAL expression SEMICOLON {:System.out.println("BBBBBBBBBBB ");:}
+variable_assignment ::= id_inside_function EQUAL expression SEMICOLON
 ;
 
 // --- Expressions ---
 expression ::= LPAREN expression RPAREN conditional_expression rest_of_expression
 		| function_call rest_of_expression
                 | value_expression rest_of_expression
+                | LOGICNEGATION expression
+                | ARITMETICNEGATION expression
+                | DELETE expression
 ;
 
 conditional_expression ::= QUESTIONSIGN expression COLON expression
 				| //EMPTY
 ;
 
-rest_of_expression ::= operator expression 				
-                    | //Empty
+rest_of_expression ::= operator expression 		
+                    | {:System.out.println("YYYYYYYYYYYYYY");:}//Empty 
 ;
 
-operator ::= LOGICAND
-            | ARITMETICEXOR
-            | ARITMETICEQUAL
-            | LOGICDISTINCT
-            | LOGICOR
-            | ARITMETICLESSEQUALTHAN
-            | ARITMETICLESSTHAN
-            | ARITMETICGREATEREQUALTHAN
-            | ARITMETICGREATERTHAN
-            | ARITMETICAND
-            | ARITMETICOR
-            | SUM
-            | SUBSTRACTION
-            | MULTIPLICATION
-            | DIVISION
-            | MODULE
-            | EXPONENTIATION
-            | SHIFTRIGHT
-            | SHIFTLEFT
-            | SUMEQUAL
-            | SUBEQUAL
-            | MULTIEQUAL
+operator ::= LOGICAND:a {:System.out.println("OPERATOR: " + a);:}
+            | ARITMETICEXOR:a {:System.out.println("OPERATOR: " + a);:}
+            | ARITMETICEQUAL:a {:System.out.println("OPERATOR: " + a);:}
+            | LOGICDISTINCT:a {:System.out.println("OPERATOR: " + a);:}
+            | LOGICOR:a {:System.out.println("OPERATOR: " + a);:}
+            | ARITMETICLESSEQUALTHAN:a {:System.out.println("OPERATOR: " + a);:}
+            | ARITMETICLESSTHAN:a {:System.out.println("OPERATOR: " + a);:}
+            | ARITMETICGREATEREQUALTHAN:a {:System.out.println("OPERATOR: " + a);:}
+            | ARITMETICGREATERTHAN:a {:System.out.println("OPERATOR: " + a);:}
+            | ARITMETICAND:a {:System.out.println("OPERATOR: " + a);:}
+            | ARITMETICOR:a {:System.out.println("OPERATOR: " + a);:}
+            | SUM:a {:System.out.println("OPERATOR: " + a);:}
+            | SUBSTRACTION:a {:System.out.println("OPERATOR: " + a);:}
+            | MULTIPLICATION:a {:System.out.println("OPERATOR: " + a);:}
+            | DIVISION:a {:System.out.println("OPERATOR: " + a);:}
+            | MODULE:a {:System.out.println("OPERATOR: " + a);:}
+            | EXPONENTIATION:a {:System.out.println("OPERATOR: " + a);:}
+            | SHIFTRIGHT:a {:System.out.println("OPERATOR: " + a);:}
+            | SHIFTLEFT:a {:System.out.println("OPERATOR: " + a);:}
+            | SUMEQUAL:a {:System.out.println("OPERATOR: " + a);:}
+            | SUBEQUAL:a {:System.out.println("OPERATOR: " + a);:}
+            | MULTIEQUAL:a {:System.out.println("OPERATOR: " + a);:}
 ;
-value_expression ::= value 
-                    | id_inside_function
+value_expression ::= value {:System.out.println("AAAAAAAAAAAAA");:}
+                    | id_inside_function {:System.out.println("BBBBBBBBBBBB");:}
 ;
 
 // --- Function calling ---
-function_call ::= id_inside_function LPAREN function_calling_params RPAREN SEMICOLON
+function_call ::= id_inside_function LPAREN function_calling_params RPAREN {:System.out.println("FUNCTION CALL");:}
 ;
 function_calling_params ::= expression other_function_calling_param 
-                        | //Empty
+                        | {:System.out.println("ZZZZZZZZZZZZZZ");:}//Empty
 ;
 other_function_calling_param ::= COMMA expression
                                 | //Empty
@@ -233,17 +252,26 @@ control_structures ::= while_statement
                         | do_while_statement 
                         | if_statement
 ;
-while_statement ::= WHILE LPAREN expression RPAREN LBRACKET statements RBRACKET
+while_statement ::= WHILE LPAREN expression RPAREN LBRACKET loop_statement RBRACKET
 ;
-for_statement ::= FOR LPAREN variable_assignment SEMICOLON expression SEMICOLON expression RPAREN LBRACKET statements RBRACKET
+for_statement ::= FOR LPAREN variable_assignment /*Semicolon on variable_assigment*/ expression SEMICOLON expression RPAREN LBRACKET loop_statement RBRACKET
 ;
-do_while_statement ::= DO LBRACKET statements RBRACKET WHILE LPAREN expression RPAREN
+do_while_statement ::= DO LBRACKET loop_statement RBRACKET WHILE LPAREN expression RPAREN
 ;
 if_statement ::= IF LPAREN expression RPAREN LBRACKET statements RBRACKET else_statement
 ;
 else_statement ::= ELSE LBRACKET statements RBRACKET 
                    | //Empty
 ;
+loop_statement ::= variable_assignment loop_statement
+                | expression SEMICOLON loop_statement
+                | control_structures loop_statement 
+                | return_statement loop_statement 
+                | BREAK SEMICOLON loop_statement
+                | CONTINUE SEMICOLON loop_statement
+                | //EMPTY
+;
+
 // --- Return ---
 return_statement ::= RETURN return_value SEMICOLON
 ;
@@ -254,12 +282,13 @@ value ::= CONSSTRING
         | CONSINTEGER 
         | CONSSCIENT 
         | TRUE 
-        | FALSE
+        | FALSE 
 ;
 // --- Aux id for inside functions context ---
-id_inside_function ::= ID:a id_inside_function_aux {:System.out.println("AAAAAAAAAAAA " + a);:}
-                    | THIS DOT ID {:System.out.println("CCCCCCCC ");:}
+id_inside_function ::= ID:a id_inside_function_aux {:System.out.println("CCCCCCCCCCCCC "+a);:}
+                    | THIS DOT ID
 ;
-id_inside_function_aux ::= DOT ID {:System.out.println("DDDDDDDDD");:}
-                        | //Empty {:System.out.println("FFFFFFFFFFFFF");:}
+id_inside_function_aux ::= DOT ID
+                        | DOT THIS
+                        | //Empty 
 ;

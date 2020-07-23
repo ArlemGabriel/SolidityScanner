@@ -29,6 +29,7 @@ public class Main {
     static ArrayList<TokenOccurrence> tokensoccurrences = new ArrayList<>();
     static ArrayList<TokenOccurrence> totaloccurrences = new ArrayList<>();
     static ArrayList<String> errorsfound = new ArrayList<>();
+    static String tokensfileroute = "../SolidityScanner/PruebaVariables.txt";
     
     
     public static void main(String[] args) {
@@ -101,7 +102,6 @@ public class Main {
     /*Objective: This method was created to specify the route
     where the tokens file to scan is located*/
     public static void getTokensFileRoute(){
-        String tokensfileroute = "../SolidityScanner/PruebaEstructura.txt";
         newtokensfile = new FilesReader(tokensfileroute);
     }
     /*Objective: This method was created to open the tokens
