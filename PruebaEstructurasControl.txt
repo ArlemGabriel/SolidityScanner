@@ -12,7 +12,7 @@ int a;
 		} 
 		else {
 			a= a+b;
-		}  
+		}
 
 		if (a > 3) {
 			a= a+b;
@@ -30,7 +30,7 @@ int a;
 		} 
 		else{  // doble else
 			a= a+b;
-		} 
+		}
         
 		for (x=0; x<4;) {
 			a= a+b;
@@ -55,5 +55,5 @@ int a;
 		
 		x=(x<2)? a:b;
 
-
+}
 } //cierra contrato

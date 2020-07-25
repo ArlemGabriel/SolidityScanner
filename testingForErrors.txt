@@ -1,0 +1,25 @@
+pragma solidity ^0.6.1;
+
+
+contract Contrato{
+	enum a{}
+	enum aa{a,}
+	enum aa{a}
+
+	int a=0,d;
+	string ;
+
+	struct a{int a;}
+	struct a{int s;}
+
+	function a(int a) public returns(int a) {
+		int a=3;
+
+		(5>=4) * (e%(5+8)+5**2>this)/462==88 * 6 - 5+4 + 246/51;
+		
+		while(this.e + 5){
+			5-this.a;}
+
+		return a.a;
+	}
+}

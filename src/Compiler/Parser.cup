@@ -4,15 +4,59 @@ import java_cup.runtime.*;
 
 /* -------------------------------- Code -------------------------------- */
 parser code
-{:
-    private Symbol s;
+{:    
+    private Symbol lastToken;
+    private int errorCount = 0;
+    //private String customMsg = "No aditional information of error was found :(";
+
     //When a sintax error happens the following function catches it automatically
-    public void syntax_error(Symbol s){
-        this.s =s;
+    public void syntax_error(Symbol token){
+        this.lastToken = token;
+        int line = token.right + 1;
+        int column = token.left + 1;
+
+        String errorMsg = "Sintax Error in line: " + line +", column: "+column+", before or at token: '"+token.value +"'\n";
+
+        report_error(errorMsg,null);
     }
 
-    public Symbol getS(){
-        return this.s;
+    protected int error_sync_size(){
+        return 2;
+    }
+
+    public void unrecovered_syntax_error(Symbol token) throws java.lang.Exception{
+        int lastLine = this.lastToken.right + 1;
+        int lastColumn = this.lastToken.left + 1;
+        int currentLine = token.right + 1;
+        int currentColumn = token.left + 1;
+
+        String errorMsg = "\nCouldn't recover from Sintax Error:\n"+
+                           "Last token in line: " + lastLine +", column: "+lastColumn+", token: '"+this.lastToken.value+"'\n"+
+                           "Current token in line: " + currentLine +", column: "+currentColumn+", token: '"+token.value+"'\n"+
+                           "Probably missing closing bracket\n"+
+                           "\nLo siento profe, parece que nos falto tomar un error en cuenta :( \n\n";
+        
+        report_error(errorMsg,null);
+    }
+
+    public void print_error(String msg){
+        report_error(msg+"\n\n", null);
+    }
+
+    public void add_error_count(){
+        errorCount += 1;
+    }
+
+    public void print_error_count(){
+        if(errorCount > 1){
+            report_error(errorCount +" SINTAX ERRORS FOUND\n\n", null);
+        }
+        else if(errorCount == 1){
+            report_error(errorCount +" SINTAX ERROR FOUND\n", null);
+        }
+        else{
+            System.out.println("0 SINTAX ERROR FOUND\n");
+        }
     }
 :}
 
@@ -54,6 +98,9 @@ non terminal    control_structures, while_statement, for_statement, do_while_sta
 non terminal    loop_statement;
 non terminal    return_statement, return_value, value, id_inside_function, id_inside_function_aux;
 
+non terminal    rest_enum, rest_variable, rest_structure, obligatory_variables, rest_function, id_inside_function_aux_2;
+non terminal    other_statements;
+
 /* -------------------------------- Precedences -------------------------------- */
 precedence left SUMEQUAL, SUBEQUAL, MULTIEQUAL;
 precedence left LOGICOR;
@@ -71,9 +118,12 @@ precedence left EXPONENTIATION;
 /* -------------------------------- Grammar -------------------------------- */
 start with start_production;
 
-start_production ::= head body
+start_production ::= head body {:print_error_count();:}
+                    | error body {:print_error("General error or wrong file format");:}
 ; 
 head ::= PRAGMA SOLIDITY version experimental_version SEMICOLON
+        | PRAGMA error {:print_error("Version is not defined correctly or there is code outside a contract");add_error_count();:}
+        | error SEMICOLON {:print_error("Version missing");add_error_count();:}
 ;
 experimental_version ::= version_operator CONSREAL CONSREAL
                         | CONSREAL CONSREAL
@@ -91,59 +141,78 @@ version_operator ::= ARITMETICEXOR
                     | LOGICDISTINCT
 ;
 
-body ::= contract other_contract 
+body ::= contract other_contract
 ;
 other_contract ::= body | //Empty
 ;
 
 // *** Contract ***
 contract ::= CONTRACT ID LBRACKET contract_block RBRACKET
+            | error RBRACKET {:print_error("Contract is not defined correctly or there is an error inside it");add_error_count();:}
 ;
 contract_block ::= enums variables structures functions
+               //| error RBRACKET {:print_error("Error on contract");add_error_count();:}
 ;
 
 // *** Enums ***
-enums ::= ENUM ID LBRACKET enum_id RBRACKET enums 
+enums ::= ENUM rest_enum
         | //Empty
 ;
-enum_id ::= ID other_enum_id 
+
+rest_enum ::= ID LBRACKET enum_id RBRACKET enums 
+            | error RBRACKET {:print_error("Emun definition error");add_error_count();:}
+;
+
+enum_id ::= ID other_enum_id
+            | error {:print_error("Enum error after opening bracket");add_error_count();:}
 ;
 other_enum_id ::= COMMA ID other_enum_id 
                 | //Empty
+                | COMMA error {:print_error("Enum error inside brackets or missing closing bracket");add_error_count();:}
 ;
 
 // *** Variables ***
-variables ::= type array_modifier aux_variables SEMICOLON variables
-            | //Empty 
+variables ::= type rest_variable
+            | //Empty
 ;
 
-aux_variables ::=  variable_modifier ID variable_optional_assignment other_variables
+rest_variable ::= LBRACE array_length RBRACE aux_variables SEMICOLON variables
+                | aux_variables SEMICOLON variables
+;
+
+aux_variables ::=  PUBLIC ID variable_optional_assignment other_variables
+                | PRIVATE ID variable_optional_assignment other_variables
+                | ID variable_optional_assignment other_variables 
+                | ID error {:print_error("Wrong variable definition, probably semicolon missing");add_error_count();:}                
+                | error {:print_error("Variable definition error, missing identifier");add_error_count();:}
 ;
 
 variable_optional_assignment ::= EQUAL value_assignment
-                                | //Empty
+                            | EQUAL error {:print_error("Variable definition error, missing value for assignment");add_error_count();:}
+                            | //Empty
 ;
 
 other_variables ::= COMMA aux_variables
-                    | {:System.out.println("PPPPPPPPPPP");:}//Empty
+                    | //Empty
 ;
 
-value_assignment ::= value {:System.out.println("AAAAAAAAAAAAA");:}
-                    | ID {:System.out.println("BBBBBBBBBBBB");:}
+value_assignment ::= value
+                    | ID
+                    //| error SEMICOLON {:print_error("Variable definition error, missing value for assignment");add_error_count();:}
 ;
 
-type ::= BOOL 
+type ::= BOOL
         | BYTE 
         | BYTES 
         | ADDRESS 
         | STRING 
         | UFIXED 
         | INTWITHSIGN 
-        | INTWITHOUTSIGN {:System.out.println("KKKKKKKKKKKKKKKKKKKKK");:}
+        | INTWITHOUTSIGN
         //| ID
 ;
 array_modifier ::= LBRACE array_length RBRACE
-                | {:System.out.println("LLLLLLLLLLLLLLL");:}//Empty
+                | //Empty
 ;
 //Easy to modify if it is needed arrays of multiples dimensions
 array_length ::= CONSINTEGER
@@ -151,23 +220,40 @@ array_length ::= CONSINTEGER
 ;
 variable_modifier ::= PUBLIC 
                 | PRIVATE 
-                | {:System.out.println("JJJJJJJJJJJJJJJJJ");:} //Empty
+                | //Empty
 ;
 
 // *** Structures ***
-structures ::= STRUCT ID LBRACKET variables RBRACKET structures | //Empty
+structures ::= STRUCT rest_structure
+                | //Empty
+;
+
+rest_structure ::= ID LBRACKET obligatory_variables RBRACKET structures
+                | error RBRACKET {:print_error("Wrong struct definition");add_error_count();:}
+;
+
+obligatory_variables ::= type rest_variable
+                        | error SEMICOLON {:print_error("Error with variable definition inside or after of struct");add_error_count();:}
+                        | error RBRACKET {:print_error("Error with variable definition inside or after of struct");add_error_count();:}
 ;
 
 // *** Functions ***
 // +++ Functions head +++
-functions ::= FUNCTION ID LPAREN function_parameters RPAREN function_modifier function_return_value LBRACKET function_block RBRACKET functions 
+functions ::= FUNCTION rest_function
             | //Empty
 ;
+
+rest_function ::= ID LPAREN function_parameters RPAREN function_modifier function_return_value LBRACKET function_block RBRACKET functions
+                | error RBRACKET {:print_error("Wrong function definition");add_error_count();:}
+;
+
 function_parameters ::= type ID other_function_parameters 
                         | //Empty
+                        | error {:print_error("Wrong parameter(s) of function");add_error_count();:}
 ;
-other_function_parameters ::= COMMA function_parameters 
+other_function_parameters ::= COMMA type ID function_parameters 
                             | //Empty
+                            | COMMA error {:print_error("Function error with parameter after a comma, probably missing");add_error_count();:}
 ;
 function_modifier ::= PAYABLE 
                     | PRIVATE 
@@ -177,20 +263,32 @@ function_modifier ::= PAYABLE
 ;
 function_return_value ::= RETURNS LPAREN type ID RPAREN
                         | //Empty
+                        | RETURNS error {:print_error("Wrong returns definition");add_error_count();:}
 ;
 // +++ Functions block +++
 function_block ::= variables statements
 ;
-statements ::= variable_assignment statements
-            | expression SEMICOLON statements
-            | control_structures statements 
-            | return_statement statements 
-            | {:System.out.println("XXXXXXXXXXXXXXX");:}//Empty 
+statements ::= variable_assignment other_statements
+            | expression SEMICOLON other_statements
+            | control_structures other_statements 
+            | return_statement other_statements 
+            | //Empty
+            | FUNCTION error {:print_error("Wrong function block, probably closing bracket of function missing");add_error_count();:}
+;
+
+other_statements ::= variable_assignment other_statements
+            | expression SEMICOLON other_statements
+            | control_structures other_statements 
+            | return_statement other_statements 
+            | //Empty
+            | FUNCTION error {:print_error("Wrong function block, probably closing bracket of function missing");add_error_count();:}
+            | variables error {:print_error("Variables only can be defined at the starts of the function/contract");add_error_count();:}
 ;
 
 // +++ Functions statements +++
 // --- Assignment ---
 variable_assignment ::= id_inside_function EQUAL expression SEMICOLON
+                        | id_inside_function error {:print_error("Wrong statement of variable assignment");add_error_count();:}
 ;
 
 // --- Expressions ---
@@ -200,48 +298,52 @@ expression ::= LPAREN expression RPAREN conditional_expression rest_of_expressio
                 | LOGICNEGATION expression
                 | ARITMETICNEGATION expression
                 | DELETE expression
+                | operator error expression {:print_error("Wrong expression statement, expression expected between operators");add_error_count();:}                
 ;
 
 conditional_expression ::= QUESTIONSIGN expression COLON expression
 				| //EMPTY
+                                | QUESTIONSIGN error {:print_error("Wrong conditional expression");add_error_count();:}
 ;
 
 rest_of_expression ::= operator expression 		
-                    | {:System.out.println("YYYYYYYYYYYYYY");:}//Empty 
+                    | //Empty
+                    | operator error expression {:print_error("Wrong expression statement, operator expected between expressions");add_error_count();:}
 ;
 
-operator ::= LOGICAND:a {:System.out.println("OPERATOR: " + a);:}
-            | ARITMETICEXOR:a {:System.out.println("OPERATOR: " + a);:}
-            | ARITMETICEQUAL:a {:System.out.println("OPERATOR: " + a);:}
-            | LOGICDISTINCT:a {:System.out.println("OPERATOR: " + a);:}
-            | LOGICOR:a {:System.out.println("OPERATOR: " + a);:}
-            | ARITMETICLESSEQUALTHAN:a {:System.out.println("OPERATOR: " + a);:}
-            | ARITMETICLESSTHAN:a {:System.out.println("OPERATOR: " + a);:}
-            | ARITMETICGREATEREQUALTHAN:a {:System.out.println("OPERATOR: " + a);:}
-            | ARITMETICGREATERTHAN:a {:System.out.println("OPERATOR: " + a);:}
-            | ARITMETICAND:a {:System.out.println("OPERATOR: " + a);:}
-            | ARITMETICOR:a {:System.out.println("OPERATOR: " + a);:}
-            | SUM:a {:System.out.println("OPERATOR: " + a);:}
-            | SUBSTRACTION:a {:System.out.println("OPERATOR: " + a);:}
-            | MULTIPLICATION:a {:System.out.println("OPERATOR: " + a);:}
-            | DIVISION:a {:System.out.println("OPERATOR: " + a);:}
-            | MODULE:a {:System.out.println("OPERATOR: " + a);:}
-            | EXPONENTIATION:a {:System.out.println("OPERATOR: " + a);:}
-            | SHIFTRIGHT:a {:System.out.println("OPERATOR: " + a);:}
-            | SHIFTLEFT:a {:System.out.println("OPERATOR: " + a);:}
-            | SUMEQUAL:a {:System.out.println("OPERATOR: " + a);:}
-            | SUBEQUAL:a {:System.out.println("OPERATOR: " + a);:}
-            | MULTIEQUAL:a {:System.out.println("OPERATOR: " + a);:}
+operator ::= LOGICAND
+            | ARITMETICEXOR
+            | ARITMETICEQUAL
+            | LOGICDISTINCT
+            | LOGICOR
+            | ARITMETICLESSEQUALTHAN
+            | ARITMETICLESSTHAN
+            | ARITMETICGREATEREQUALTHAN
+            | ARITMETICGREATERTHAN
+            | ARITMETICAND
+            | ARITMETICOR
+            | SUM
+            | SUBSTRACTION
+            | MULTIPLICATION
+            | DIVISION
+            | MODULE
+            | EXPONENTIATION
+            | SHIFTRIGHT
+            | SHIFTLEFT
+            | SUMEQUAL
+            | SUBEQUAL
+            | MULTIEQUAL
 ;
-value_expression ::= value {:System.out.println("AAAAAAAAAAAAA");:}
-                    | id_inside_function {:System.out.println("BBBBBBBBBBBB");:}
+
+value_expression ::= value
+                    | id_inside_function
 ;
 
 // --- Function calling ---
-function_call ::= id_inside_function LPAREN function_calling_params RPAREN {:System.out.println("FUNCTION CALL");:}
+function_call ::= id_inside_function LPAREN function_calling_params RPAREN
 ;
 function_calling_params ::= expression other_function_calling_param 
-                        | {:System.out.println("ZZZZZZZZZZZZZZ");:}//Empty
+                        | //Empty
 ;
 other_function_calling_param ::= COMMA expression
                                 | //Empty
@@ -253,15 +355,20 @@ control_structures ::= while_statement
                         | if_statement
 ;
 while_statement ::= WHILE LPAREN expression RPAREN LBRACKET loop_statement RBRACKET
+                    | WHILE error RBRACKET{:print_error("While wrong definition");add_error_count();:}
 ;
 for_statement ::= FOR LPAREN variable_assignment /*Semicolon on variable_assigment*/ expression SEMICOLON expression RPAREN LBRACKET loop_statement RBRACKET
+                | FOR error RBRACKET{:print_error("For wrong definition");add_error_count();:}
 ;
 do_while_statement ::= DO LBRACKET loop_statement RBRACKET WHILE LPAREN expression RPAREN
+                    | DO error RBRACKET{:print_error("Do while wrong definition");add_error_count();:}
 ;
 if_statement ::= IF LPAREN expression RPAREN LBRACKET statements RBRACKET else_statement
+                | IF error RBRACKET {:print_error("If wrong definition");add_error_count();:}
 ;
 else_statement ::= ELSE LBRACKET statements RBRACKET 
                    | //Empty
+                   | ELSE error RBRACKET {:print_error("Else wrong definition");add_error_count();:}
 ;
 loop_statement ::= variable_assignment loop_statement
                 | expression SEMICOLON loop_statement
@@ -274,6 +381,7 @@ loop_statement ::= variable_assignment loop_statement
 
 // --- Return ---
 return_statement ::= RETURN return_value SEMICOLON
+                    | RETURN error {:print_error("Missing return value");add_error_count();:}
 ;
 return_value ::= id_inside_function 
                 | value
@@ -285,10 +393,16 @@ value ::= CONSSTRING
         | FALSE 
 ;
 // --- Aux id for inside functions context ---
-id_inside_function ::= ID:a id_inside_function_aux {:System.out.println("CCCCCCCCCCCCC "+a);:}
-                    | THIS DOT ID
+id_inside_function ::= ID id_inside_function_aux
+                    | THIS id_inside_function_aux_2
 ;
 id_inside_function_aux ::= DOT ID
                         | DOT THIS
-                        | //Empty 
+                        | //Empty
+                        | DOT error {:print_error("Id error, missing identifier after '.'");add_error_count();:}
+;
+
+id_inside_function_aux_2 ::= DOT ID
+                        | //Empty
+                        | DOT error {:print_error("Id error, missing identifier after '.'");add_error_count();:}
 ;

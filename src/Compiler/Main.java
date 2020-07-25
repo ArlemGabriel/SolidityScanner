@@ -73,7 +73,7 @@ public class Main {
         }
     }
     public static void generateParser(){
-        String[] file = {"-nowarn","-progress", "-parser","Parser",parserroute};
+        String[] file = {"-nowarn","-nosummary",/*"-progress",*/ "-parser","Parser",parserroute};
         try {
             //Generate file Parser.java and sym.java
             java_cup.Main.main(file);
@@ -247,8 +247,8 @@ public class Main {
             parser.parse();
         } catch (Exception ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-            Symbol sym = parser.getS();
-            System.out.println("DEBUG: Sintax Error, Line: " + (sym.right + 1) + ", Column: " + (sym.left + 1) + ", Token: " + sym.value);
+            //Symbol sym = parser.getS();
+            //System.out.println("DEBUG: Sintax Error, Line: " + (sym.right + 1) + ", Column: " + (sym.left + 1) + ", Token: " + sym.value);
         }
     }
     
@@ -287,7 +287,7 @@ public class Main {
     encounted on execution of the lexer*/
     private static void printErrors(){
         int size = errorsfound.size();
-        System.out.println(size+" ERROR(S) FOUND \n");
+        System.out.println(size+" LEXICAL ERROR(S) FOUND\n");
         for(int i=0;i<size;i++){
             System.out.println(errorsfound.get(i));
         }
