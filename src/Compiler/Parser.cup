@@ -99,14 +99,14 @@ non terminal    loop_statement;
 non terminal    return_statement, return_value, value, id_inside_function, id_inside_function_aux;
 
 non terminal    rest_enum, rest_variable, rest_structure, obligatory_variables, rest_function, id_inside_function_aux_2;
-non terminal    other_statements;
+non terminal    other_statements, other_structures, other_functions;
 
 /* -------------------------------- Precedences -------------------------------- */
 precedence left SUMEQUAL, SUBEQUAL, MULTIEQUAL;
 precedence left LOGICOR;
 precedence left LOGICAND;
 precedence left LOGICDISTINCT, ARITMETICEQUAL;
-precedence left ARITMETICGREATERTHAN, ARITMETICLESSTHAN, ARITMETICLESSEQUALTHAN, ARITMETICGREATEREQUALTHAN;
+precedence left ARITMETICGREATERTHAN, ARITMETICLESSTHAN, ARITMETICLESSEQUALTHAN, ARITMETICGREATEREQUALTHAN, DIVEQUAL;
 precedence left ARITMETICOR;
 precedence left ARITMETICEXOR;
 precedence left ARITMETICAND;
@@ -151,7 +151,21 @@ contract ::= CONTRACT ID LBRACKET contract_block RBRACKET
             | error RBRACKET {:print_error("Contract is not defined correctly or there is an error inside it");add_error_count();:}
 ;
 contract_block ::= enums variables structures functions
-               //| error RBRACKET {:print_error("Error on contract");add_error_count();:}
+                //POSIBLE ERRORS ON CONTRACT
+               | ID error RBRACKET {:print_error("Variable assignation only can be done inside a function");add_error_count();:}
+               | ID error SEMICOLON {:print_error("Variable assignation only can be done inside a function");add_error_count();:}
+               | error RBRACKET {:print_error("There is a wrong order of elements inside contract");add_error_count();:}
+               | error SEMICOLON {:print_error("There is a wrong order of elements inside contract");add_error_count();:}
+               | IF error SEMICOLON {:print_error("If can only be use inside functions");add_error_count();:}
+               | IF error RBRACKET {:print_error("If can only be use inside functions");add_error_count();:}
+               | ELSE error SEMICOLON {:print_error("Else can only be use inside functions");add_error_count();:}
+               | ELSE error RBRACKET {:print_error("Else can only be use inside functions");add_error_count();:}
+               | FOR error SEMICOLON {:print_error("For can only be use inside functions");add_error_count();:}
+               | FOR error RBRACKET {:print_error("For can only be use inside functions");add_error_count();:}
+               | WHILE error SEMICOLON {:print_error("While can only be use inside functions");add_error_count();:}
+               | WHILE error RBRACKET {:print_error("While can only be use inside functions");add_error_count();:}
+               | DO error SEMICOLON {:print_error("Do while can only be use inside functions");add_error_count();:}
+               | DO error RBRACKET {:print_error("Do while can only be use inside functions");add_error_count();:}
 ;
 
 // *** Enums ***
@@ -228,8 +242,14 @@ structures ::= STRUCT rest_structure
                 | //Empty
 ;
 
-rest_structure ::= ID LBRACKET obligatory_variables RBRACKET structures
+rest_structure ::= ID LBRACKET obligatory_variables RBRACKET other_structures
                 | error RBRACKET {:print_error("Wrong struct definition");add_error_count();:}
+;
+
+other_structures ::= STRUCT rest_structure
+                | //Empty
+                | variables error SEMICOLON {:print_error("Variable definition can't be done after structures");add_error_count();:}
+                | variables error RBRACKET {:print_error("Variable definition can't be done after structures");add_error_count();:}
 ;
 
 obligatory_variables ::= type rest_variable
@@ -243,8 +263,14 @@ functions ::= FUNCTION rest_function
             | //Empty
 ;
 
-rest_function ::= ID LPAREN function_parameters RPAREN function_modifier function_return_value LBRACKET function_block RBRACKET functions
+rest_function ::= ID LPAREN function_parameters RPAREN function_modifier function_return_value LBRACKET function_block RBRACKET other_functions
                 | error RBRACKET {:print_error("Wrong function definition");add_error_count();:}
+;
+
+other_functions ::= FUNCTION rest_function
+                 | //Empty
+                 | variables error SEMICOLON {:print_error("Variable can't be done after structures");add_error_count();:}
+                 | variables error RBRACKET {:print_error("Variable can't be done after structures");add_error_count();:}
 ;
 
 function_parameters ::= type ID other_function_parameters 
@@ -263,7 +289,9 @@ function_modifier ::= PAYABLE
 ;
 function_return_value ::= RETURNS LPAREN type ID RPAREN
                         | //Empty
-                        | RETURNS error {:print_error("Wrong returns definition");add_error_count();:}
+                        | RETURNS error RPAREN {:print_error("Wrong returns definition");add_error_count();:}
+                        | RETURNS error SEMICOLON {:print_error("Wrong returns definition");add_error_count();:}
+                        | RETURNS error RBRACKET {:print_error("Wrong returns definition");add_error_count();:}
 ;
 // +++ Functions block +++
 function_block ::= variables statements
@@ -273,7 +301,9 @@ statements ::= variable_assignment other_statements
             | control_structures other_statements 
             | return_statement other_statements 
             | //Empty
-            | FUNCTION error {:print_error("Wrong function block, probably closing bracket of function missing");add_error_count();:}
+            //POSIBLES ERRORS FOR STATEMENTS INSIDE FUNCTION
+            | FUNCTION error SEMICOLON {:print_error("Wrong function block, probably closing bracket of function missing");add_error_count();:}
+            | FUNCTION error RBRACKET {:print_error("Wrong function block, probably closing bracket of function missing");add_error_count();:}
 ;
 
 other_statements ::= variable_assignment other_statements
@@ -281,14 +311,17 @@ other_statements ::= variable_assignment other_statements
             | control_structures other_statements 
             | return_statement other_statements 
             | //Empty
-            | FUNCTION error {:print_error("Wrong function block, probably closing bracket of function missing");add_error_count();:}
+            //POSIBLES ERRORS FOR STATEMENTS INSIDE FUNCTION
+            | FUNCTION error SEMICOLON {:print_error("Wrong function block, probably closing bracket of function missing");add_error_count();:}
+            | FUNCTION error RBRACKET {:print_error("Wrong function block, probably closing bracket of function missing");add_error_count();:}
             | variables error {:print_error("Variables only can be defined at the starts of the function/contract");add_error_count();:}
 ;
 
 // +++ Functions statements +++
 // --- Assignment ---
 variable_assignment ::= id_inside_function EQUAL expression SEMICOLON
-                        | id_inside_function error {:print_error("Wrong statement of variable assignment");add_error_count();:}
+                        | id_inside_function error SEMICOLON {:print_error("Wrong statement of variable assignment");add_error_count();:}
+                        | id_inside_function error RBRACKET {:print_error("Wrong statement of variable assignment");add_error_count();:}
 ;
 
 // --- Expressions ---
@@ -333,6 +366,7 @@ operator ::= LOGICAND
             | SUMEQUAL
             | SUBEQUAL
             | MULTIEQUAL
+            | DIVEQUAL
 ;
 
 value_expression ::= value
@@ -377,6 +411,8 @@ loop_statement ::= variable_assignment loop_statement
                 | BREAK SEMICOLON loop_statement
                 | CONTINUE SEMICOLON loop_statement
                 | //EMPTY
+                | error SEMICOLON {:print_error("Error inside loop");add_error_count();:}
+                | error RBRACKET {:print_error("Error inside loop");add_error_count();:}
 ;
 
 // --- Return ---

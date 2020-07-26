@@ -1,0 +1,60 @@
+pragma solidity 0.4.0;  //Error: Versión no definida //Error: Al quitar la versión comentada da error porque falta operador en la versión el techito
+
+function f(int x) returns(int a){   //Error: Función definida fuera del contrato
+
+}
+
+int error;  //Error: Declaración fuera del contrato
+
+contract a{ //Error: Falta identificador
+    //x = 3; //Error: Declaración despúes de asignación
+    int x; 
+    function f(int x) returns(){ //Error: Falta tipo y falta variable y tipo en return
+/**        function f() returns(){ //Error: Función dentro de otra función
+
+        }
+        if () {  // Error: No tiene la expresion
+			x= z+y;
+		} 
+		else {
+			x= 4;
+		}
+        else{
+
+        }*/
+    }
+    function a(int a){ //Error: Falta identificador de función
+        if(a){
+}
+        else{    //Error: Falta parentesis if
+}
+        //Error: Falta parentesis else
+    }
+    int z; //Error: Declaración fuera de lugar
+
+    if(x){  //Error: Declaración de if fuera de función
+        z=2;
+    }
+    for (x=0; x<4;){ //Error: Declaración for fuera de función, NO DEBE TIRAR ERROR DE FALTA DE PARAMETROS PORQUE EL PRIMER ERROR ES QUE ESTA AFUERA DE FUNCIÓN
+			x= a+b; 
+			break;
+    }
+    x=(x<2)?  :b; //Error: Se encuentra fuera de función
+
+    function (int) returns(int){ //Error: falta id en parametros de entrada y salida
+        for (;x<4;x++){ //Error: Viene ; y no el primer parametro
+			x= a+b; 
+			break;
+        //Error: Falta llave de cierre
+        while ()   // Error: No tiene expresión //Error: Al agregar expresión falta la llave de apertura
+			a= a+b;
+		} 
+       
+		while ((!f)||(x<2)) {
+			x=; //Error: Expresión mal hecha
+		}
+
+    }
+    
+}
+//Error: Falta llave de cierre del contrato
