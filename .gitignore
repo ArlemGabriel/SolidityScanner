@@ -25,3 +25,10 @@ hs_err_pid*
 #Scanner generated
 Scanner.java
 /dist/
+build
+nbproject/private
+src/Compiler/ScannerCup.java~
+src/Compiler/Parser.java
+src/Compiler/Scanner.java~
+src/Compiler/ScannerCup.java
+src/Compiler/sym.java
