@@ -18,7 +18,6 @@ public class TokenOccurrence extends Token{
     public TokenOccurrence() {
         totaloccurrences = new ArrayList<>();
     }
-    
 
     public int getOccurrences() {
         return occurrences;

@@ -5,6 +5,7 @@
  */
 package Compiler;
 
+import Compiler.Registry.SemanticRegistry;
 import java.util.ArrayList;
 
 /**
@@ -12,14 +13,23 @@ import java.util.ArrayList;
  * @author Arlem Gabriel
  */
 public class SemanticStack {
-    private ArrayList<SemanticToken> stack;
+    private ArrayList<SemanticRegistry> stack = new ArrayList<>();
     
-    public void push(SemanticToken semanticToken){
-        stack.add(semanticToken);
+    public void push(SemanticRegistry semanticRegistry){
+        stack.add(semanticRegistry);
     }
     
-    public SemanticToken pop(){
+    public SemanticRegistry pop(){
         int position = stack.size()-1;
         return stack.remove(position);
     }
+
+    public ArrayList<SemanticRegistry> getStack() {
+        return stack;
+    }
+    public SemanticRegistry getLastElement(){
+        return stack.get(stack.size()-1);
+    }
+
+    
 }

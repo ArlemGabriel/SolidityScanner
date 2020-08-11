@@ -5,6 +5,12 @@
  */
 package Compiler;
 
+import Compiler.Registry.SR_Id;
+import Compiler.Registry.SR_Type;
+import Compiler.Registry.SemanticRegistry;
+import Compiler.SemanticSymbol.SemanticSymbol;
+import Compiler.SemanticSymbol.VariablesSymbol;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java_cup.runtime.Symbol;
 
@@ -17,11 +23,13 @@ class Semantic {
     private SemanticErrors semanticErrors;
     private SemanticStack semanticStack;
     private SymbolTable symbolTable;
+    private int actualScope;
     
-    private Semantic(){
+    public Semantic(){
         symbolTable = new SymbolTable();
         semanticStack = new SemanticStack();
         semanticErrors = new SemanticErrors();
+        actualScope =0;
     }
     
     public static Semantic getInstance(){
@@ -35,6 +43,62 @@ class Semantic {
         //type identifier;
         //type identifier;
     }
+    
+    public void rememberId(String name, int line){
+        SR_Id registryId= new SR_Id(name,line);
+        semanticStack.push(registryId);
+    }
+    
+    public void rememberType(String type, int line){
+        SR_Type registryType= new SR_Type(type,line);
+        semanticStack.push(registryType);
+    }
+    //int a,b,c;
+    //int a=5,b=7,c=2;
+    //int a=b, c=g;
+    //int a=1+5,b=a+5;
+    //int a=5,b;
+    
+    public void insertDeclaration(){
+        String type = "";
+        for(SemanticRegistry sr: semanticStack.getStack()){
+            if(sr instanceof SR_Type){
+                type = ((SR_Type) sr).getType();
+            }
+        }
+        while(!(semanticStack.getLastElement() instanceof SR_Type)){
+            SR_Id idRegistry = (SR_Id)semanticStack.pop();
+            String name = idRegistry.getName();
+            int line = idRegistry.getLine();
+            if(!symbolTable.isRepeated(name, type, actualScope)){
+                SemanticSymbol newSymbol = new VariablesSymbol(line, actualScope, name, type, "0");
+                symbolTable.addSymbol(newSymbol);
+            }else{
+                semanticErrors.addSemanticError("VARIABLE REPETIDA");
+            }
+            
+            
+        }
+        // Remove type from semantic stack
+        semanticStack.pop();
+
+    }
+    public void print(){
+        for(SemanticRegistry sr: semanticStack.getStack()){
+            if(sr instanceof SR_Type){
+                System.out.println("TYPE: "+((SR_Type) sr).getType()+ "\tLINE: "+((SR_Type) sr).getLine());
+            }else{
+                System.out.println("TYPE: "+((SR_Id) sr).getName()+ "\tLINE: "+((SR_Id) sr).getLine());
+            }
+        }
+        
+        for(SemanticSymbol ss: symbolTable.getSymbolTable()){
+            System.out.println("TYPE: "+((VariablesSymbol) ss).getType()+"\tID: "+((VariablesSymbol) ss).getName()+ "\tVALUE: "+((VariablesSymbol) ss).getValue()+ "\tLINE: "+((VariablesSymbol) ss).getLine());
+        }
+        
+        System.out.println("STACK: "+semanticStack.getStack().size());
+    }
+    
    
     
     

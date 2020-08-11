@@ -3,30 +3,33 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Compiler;
+package Compiler.SemanticSymbol;
 
 /**
  *
  * @author Arlem Gabriel
  */
-public class SemanticToken {
-    Token token;
+ public class SemanticSymbol {
+    int line;
     int scope;
+    String name; //
+    String type; //CONSINTEGER
 
-    public Token getToken() {
-        return token;
-    }
-
-    public void setToken(Token token) {
-        this.token = token;
+    public int getLine() {
+        return line;
     }
 
     public int getScope() {
         return scope;
     }
 
-    public void setScope(int scope) {
-        this.scope = scope;
+    public String getName() {
+        return name;
     }
+
+    public String getType() {
+        return type;
+    }
+    
     
 }

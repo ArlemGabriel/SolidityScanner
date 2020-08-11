@@ -13,7 +13,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java_cup.runtime.Symbol;
 import jflex.exceptions.SilentExit;
 
 /**

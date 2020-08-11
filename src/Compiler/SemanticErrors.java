@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * @author Arlem Gabriel
  */
 public class SemanticErrors {
-    private ArrayList<String> semanticErrors;
+    private ArrayList<String> semanticErrors = new ArrayList<>();
 
     public ArrayList<String> getSemanticErrors() {
         return semanticErrors;

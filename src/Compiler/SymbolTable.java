@@ -5,6 +5,7 @@
  */
 package Compiler;
 
+import Compiler.SemanticSymbol.SemanticSymbol;
 import java.util.ArrayList;
 
 /**
@@ -12,7 +13,7 @@ import java.util.ArrayList;
  * @author Arlem Gabriel
  */
 public class SymbolTable {
-    private ArrayList<SemanticSymbol> symbolTable;
+    private ArrayList<SemanticSymbol> symbolTable = new ArrayList<>();
 
     public ArrayList<SemanticSymbol> getSymbolTable() {
         return symbolTable;
@@ -20,5 +21,17 @@ public class SymbolTable {
 
     public void addSymbol(SemanticSymbol semanticSymbol){
         symbolTable.add(semanticSymbol);
-    }    
+    }
+    public boolean isRepeated(String name,String type,int scope){
+
+        for(SemanticSymbol semanticSymbol: symbolTable){
+            if(semanticSymbol.getName().equals(name) 
+                    && semanticSymbol.getType().equals(type)
+                    && semanticSymbol.getScope()==scope){
+                
+                return true;
+            }
+        }
+        return false;
+    }
 }

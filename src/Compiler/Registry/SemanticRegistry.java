@@ -3,12 +3,24 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Compiler;
+package Compiler.Registry;
+
+import Compiler.*;
 
 /**
  *
  * @author Arlem Gabriel
  */
-public class SemanticSymbol {
+public class SemanticRegistry {
+    int line;
+    
+    public int getLine() {
+        return line;
+    }
+
+    public void setLine(int line) {
+        this.line = line;
+    }
+    
     
 }

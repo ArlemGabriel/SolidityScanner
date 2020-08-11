@@ -1,10 +1,13 @@
 package Compiler;
 
 import java_cup.runtime.*;
+import Compiler.Semantic;
 
 /* -------------------------------- Code -------------------------------- */
+
 parser code
 {:    
+    private Semantic semantic = new Semantic();
     private Symbol lastToken;
     private int errorCount = 0;
     //private String customMsg = "No aditional information of error was found :(";
@@ -118,7 +121,7 @@ precedence left EXPONENTIATION;
 /* -------------------------------- Grammar -------------------------------- */
 start with start_production;
 
-start_production ::= head body {:print_error_count();:}
+start_production ::= head body {:print_error_count();semantic.print();:}
                     | error body {:print_error("General error or wrong file format");:}
 ; 
 head ::= PRAGMA SOLIDITY version experimental_version SEMICOLON
@@ -186,17 +189,17 @@ other_enum_id ::= COMMA ID other_enum_id
 ;
 
 // *** Variables ***
-variables ::= type rest_variable
+variables ::= type:token {:semantic.rememberType(String.valueOf(token),tokenright);:} rest_variable
             | //Empty
 ;
 
-rest_variable ::= LBRACE array_length RBRACE aux_variables SEMICOLON variables
-                | aux_variables SEMICOLON variables
+rest_variable ::= LBRACE array_length RBRACE aux_variables SEMICOLON {:semantic.insertDeclaration();:} variables
+                | aux_variables SEMICOLON {:semantic.insertDeclaration();:} variables
 ;
 
-aux_variables ::=  PUBLIC ID variable_optional_assignment other_variables
-                | PRIVATE ID variable_optional_assignment other_variables
-                | ID variable_optional_assignment other_variables 
+aux_variables ::=  PUBLIC ID:token {:semantic.rememberId(String.valueOf(token),tokenright);:} variable_optional_assignment other_variables
+                | PRIVATE ID:token {:semantic.rememberId(String.valueOf(token),tokenright);:} variable_optional_assignment other_variables
+                | ID:token {:semantic.rememberId(String.valueOf(token),tokenright);:} variable_optional_assignment other_variables 
                 | ID error {:print_error("Wrong variable definition, probably semicolon missing");add_error_count();:}                
                 | error {:print_error("Variable definition error, missing identifier");add_error_count();:}
 ;
@@ -215,14 +218,14 @@ value_assignment ::= value
                     //| error SEMICOLON {:print_error("Variable definition error, missing value for assignment");add_error_count();:}
 ;
 
-type ::= BOOL
-        | BYTE 
-        | BYTES 
-        | ADDRESS 
-        | STRING 
-        | UFIXED 
-        | INTWITHSIGN 
-        | INTWITHOUTSIGN
+type ::= BOOL:a {:RESULT=a;:}
+        | BYTE:a {:RESULT=a;:}
+        | BYTES:a {:RESULT=a;:}
+        | ADDRESS:a {:RESULT=a;:}
+        | STRING:a {:RESULT=a;:}
+        | UFIXED:a {:RESULT=a;:}
+        | INTWITHSIGN:a {:RESULT=a;:}
+        | INTWITHOUTSIGN:a {:RESULT=a;:}
         //| ID
 ;
 array_modifier ::= LBRACE array_length RBRACE
