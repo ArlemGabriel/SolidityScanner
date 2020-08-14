@@ -15,10 +15,10 @@ parser code
     //When a sintax error happens the following function catches it automatically
     public void syntax_error(Symbol token){
         this.lastToken = token;
-        int line = token.right + 1;
+        int line = tokenright + 1;
         int column = token.left + 1;
 
-        String errorMsg = "Sintax Error in line: " + line +", column: "+column+", before or at token: '"+token.value +"'\n";
+        String errorMsg = "Sintax Error in line: " + line +", column: "+column+", before or at token: '"+String.valueOf(token) +"'\n";
 
         report_error(errorMsg,null);
     }
@@ -30,12 +30,12 @@ parser code
     public void unrecovered_syntax_error(Symbol token) throws java.lang.Exception{
         int lastLine = this.lastToken.right + 1;
         int lastColumn = this.lastToken.left + 1;
-        int currentLine = token.right + 1;
+        int currentLine = tokenright + 1;
         int currentColumn = token.left + 1;
 
         String errorMsg = "\nCouldn't recover from Sintax Error:\n"+
                            "Last token in line: " + lastLine +", column: "+lastColumn+", token: '"+this.lastToken.value+"'\n"+
-                           "Current token in line: " + currentLine +", column: "+currentColumn+", token: '"+token.value+"'\n"+
+                           "Current token in line: " + currentLine +", column: "+currentColumn+", token: '"+String.valueOf(token)+"'\n"+
                            "Probably missing closing bracket\n"+
                            "\nLo siento profe, parece que nos falto tomar un error en cuenta :( \n\n";
         
@@ -322,7 +322,7 @@ other_statements ::= variable_assignment other_statements
 
 // +++ Functions statements +++
 // --- Assignment ---
-variable_assignment ::= id_inside_function EQUAL expression SEMICOLON
+variable_assignment ::= id_inside_function:token {:semantic.rememberDO("VARIABLE", null, String.valueOf(token),tokenright + 1);:} EQUAL:token2 {:semantic.rememberOperator("ARITHMETIC", String.valueOf(token2), token2right + 1);:}  expression SEMICOLON
                         | id_inside_function error SEMICOLON {:print_error("Wrong statement of variable assignment");add_error_count();:}
                         | id_inside_function error RBRACKET {:print_error("Wrong statement of variable assignment");add_error_count();:}
 ;
@@ -349,17 +349,17 @@ rest_of_expression ::= operator expression
 
 operator ::= LOGICAND
             | ARITMETICEXOR
-            | ARITMETICEQUAL
-            | LOGICDISTINCT
+            | ARITMETICEQUAL:token {:semantic.rememberOperator("BOOLEAN", String.valueOf(token), tokenright + 1);:}
+            | LOGICDISTINCT:token {:semantic.rememberOperator("BOOLEAN", String.valueOf(token), tokenright + 1);:}
             | LOGICOR
-            | ARITMETICLESSEQUALTHAN
-            | ARITMETICLESSTHAN
-            | ARITMETICGREATEREQUALTHAN
-            | ARITMETICGREATERTHAN
+            | ARITMETICLESSEQUALTHAN:token {:semantic.rememberOperator("BOOLEAN", String.valueOf(token), tokenright + 1);:}
+            | ARITMETICLESSTHAN:token {:semantic.rememberOperator("BOOLEAN", String.valueOf(token), tokenright + 1);:}
+            | ARITMETICGREATEREQUALTHAN:token {:semantic.rememberOperator("BOOLEAN", String.valueOf(token), tokenright + 1);:}
+            | ARITMETICGREATERTHAN:token {:semantic.rememberOperator("BOOLEAN", String.valueOf(token), tokenright + 1);:}
             | ARITMETICAND
             | ARITMETICOR
-            | SUM
-            | SUBSTRACTION
+            | SUM:token {:semantic.rememberOperator("ARITHMETIC", String.valueOf(token), tokenright + 1);:}
+            | SUBSTRACTION:token {:semantic.rememberOperator("ARITHMETIC", String.valueOf(token), tokenright + 1);:}
             | MULTIPLICATION
             | DIVISION
             | MODULE
@@ -372,8 +372,8 @@ operator ::= LOGICAND
             | DIVEQUAL
 ;
 
-value_expression ::= value
-                    | id_inside_function
+value_expression ::= value:token
+                    | id_inside_function:token {:semantic.rememberDO("VARIABLE", null, String.valueOf(token),tokenright + 1);:}
 ;
 
 // --- Function calling ---
@@ -425,14 +425,14 @@ return_statement ::= RETURN return_value SEMICOLON
 return_value ::= id_inside_function 
                 | value
 ;
-value ::= CONSSTRING 
-        | CONSINTEGER 
-        | CONSSCIENT 
-        | TRUE 
-        | FALSE 
+value ::= CONSSTRING:token {:semantic.rememberDO("CONSTANT","CONSSTRING",String.valueOf(token),tokenright + 1);:}
+        | CONSINTEGER:token {:semantic.rememberDO("CONSTANT","CONSINTEGER",String.valueOf(token),tokenright + 1);:}
+        | CONSSCIENT:token {:semantic.rememberDO("CONSTANT","CONSSCIENT",String.valueOf(token),tokenright + 1);:}
+        | TRUE:token {:semantic.rememberDO("CONSTANT","TRUE",String.valueOf(token),tokenright + 1);:}
+        | FALSE:token {:semantic.rememberDO("CONSTANT","FALSE",String.valueOf(token),tokenright + 1);:}
 ;
 // --- Aux id for inside functions context ---
-id_inside_function ::= ID id_inside_function_aux
+id_inside_function ::= ID:a {:RESULT=a;:} id_inside_function_aux
                     | THIS id_inside_function_aux_2
 ;
 id_inside_function_aux ::= DOT ID

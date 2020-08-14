@@ -2,7 +2,10 @@ pragma solidity ^0.6.1;
 
 
 contract Contrato{
-	enum a{} //Error
+	function a() {
+		a = 5;
+	}
+	/**enum a{} //Error
 	enum aa{a,} //Error
 	enum aa{a}
 
@@ -34,5 +37,5 @@ contract Contrato{
 		return a.a;
 	}
 	
-	function a() {}
+	function a() {}*/
 }

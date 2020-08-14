@@ -21,7 +21,10 @@ public class SemanticStack {
     
     public SemanticRegistry pop(){
         int position = stack.size()-1;
-        return stack.remove(position);
+        if(position>-1)
+            return stack.remove(position);
+        else
+            return null;
     }
 
     public ArrayList<SemanticRegistry> getStack() {

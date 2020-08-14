@@ -28,7 +28,7 @@ public class Main {
     static ArrayList<TokenOccurrence> tokensoccurrences = new ArrayList<>();
     static ArrayList<TokenOccurrence> totaloccurrences = new ArrayList<>();
     static ArrayList<String> errorsfound = new ArrayList<>();
-    static String tokensfileroute = "../SolidityScanner/PruebaVariables.txt";
+    static String tokensfileroute = "../SolidityScanner/testingForErrors.txt";
     
     
     public static void main(String[] args) {
