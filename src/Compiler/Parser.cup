@@ -266,7 +266,7 @@ functions ::= FUNCTION rest_function
             | //Empty
 ;
 
-rest_function ::= ID LPAREN function_parameters RPAREN function_modifier function_return_value LBRACKET function_block RBRACKET other_functions
+rest_function ::= ID LPAREN function_parameters RPAREN function_modifier function_return_value LBRACKET {:semantic.actualScopeSum();:} function_block RBRACKET other_functions
                 | error RBRACKET {:print_error("Wrong function definition");add_error_count();:}
 ;
 

@@ -1,12 +1,18 @@
 pragma solidity ^0.6.1;
 
-
 contract Contrato{
 
-	enum enum1{ id1, id2, id3}
-	enum enum2{ id1, id2, } // error de coma
-
 	int a, a, a, b;
+	function f1(){
+		int a;
+		int a;
+		int b;
+		int c;
+		int j,h,k;
+		if(x==true){
+			a=0;
+		}
+	}
 	/**int z, t, y, ; //error
 	int y  // error     
 	int z, t, y, y;

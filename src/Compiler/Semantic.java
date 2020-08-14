@@ -38,10 +38,11 @@ class Semantic {
         }
         return instance;
     }
-    
-    public void analyzeToken(Symbol tokenValue, String tokenType){
-        //type identifier;
-        //type identifier;
+    public void actualScopeSum() {
+        actualScope = actualScope+1;
+    }
+    public void actualScopeSubtract(){
+        actualScope = actualScope-1;
     }
     
     public void rememberId(String name, int line){
@@ -74,7 +75,7 @@ class Semantic {
                 SemanticSymbol newSymbol = new VariablesSymbol(line, actualScope, name, type, "0");
                 symbolTable.addSymbol(newSymbol);
             }else{
-                semanticErrors.addSemanticError("VARIABLE REPETIDA");
+                semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.REPEATED_VARIABLE.getDescription()+" '"+name+"' "+"AT LINE: "+line);
             }
             
             
@@ -82,6 +83,10 @@ class Semantic {
         // Remove type from semantic stack
         semanticStack.pop();
 
+    }
+    public void insertVariableDefinition(){
+        //TODO
+        
     }
     public void print(){
         for(SemanticRegistry sr: semanticStack.getStack()){
@@ -93,11 +98,16 @@ class Semantic {
         }
         
         for(SemanticSymbol ss: symbolTable.getSymbolTable()){
-            System.out.println("TYPE: "+((VariablesSymbol) ss).getType()+"\tID: "+((VariablesSymbol) ss).getName()+ "\tVALUE: "+((VariablesSymbol) ss).getValue()+ "\tLINE: "+((VariablesSymbol) ss).getLine());
+            System.out.println("TYPE: "+((VariablesSymbol) ss).getType()+"\tID: "+((VariablesSymbol) ss).getName()+ "\tVALUE: "+((VariablesSymbol) ss).getValue()+ "\tLINE: "+((VariablesSymbol) ss).getLine() + "\tSCOPE: "+((VariablesSymbol) ss).getScope());
         }
-        
+        for(String se: semanticErrors.getSemanticErrors()){
+            System.out.println(se);
+        }
         System.out.println("STACK: "+semanticStack.getStack().size());
     }
+
+
+    
     
    
     

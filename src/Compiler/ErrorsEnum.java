@@ -15,7 +15,9 @@ public enum ErrorsEnum {
     QUOTEERROR(3, "Missing quote"),
     INVALID_IDENTIFIER(4,"Invalid identifier"),
     CONSSTRINGERROR(5,"String doesnt allow multiple lines"),
-    MULTICOMMENTERROR(6,"The commentary is never closed");
+    MULTICOMMENTERROR(6,"The commentary is never closed"),
+    REPEATED_VARIABLE(7,"Variable already defined"),
+    ;
     
   private final int code;
   private final String description;
