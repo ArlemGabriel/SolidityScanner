@@ -22,16 +22,26 @@ public class SymbolTable {
     public void addSymbol(SemanticSymbol semanticSymbol){
         symbolTable.add(semanticSymbol);
     }
-    public boolean isRepeated(String name,String type,int scope){
+    public boolean isSymbolOnTable(String name, int scope){
 
         for(SemanticSymbol semanticSymbol: symbolTable){
             if(semanticSymbol.getName().equals(name) 
-                    && semanticSymbol.getType().equals(type)
+                    /*&& semanticSymbol.getType().equals(type)*/
                     && semanticSymbol.getScope()==scope){
                 
                 return true;
             }
         }
         return false;
+    }
+    
+    public String getVariableType(String name, int scope){
+        for(SemanticSymbol semanticSymbol: symbolTable){
+            if(semanticSymbol.getName().equals(name) 
+                    && semanticSymbol.getScope()==scope){
+                return semanticSymbol.getType();
+            }
+        }
+        return null;
     }
 }

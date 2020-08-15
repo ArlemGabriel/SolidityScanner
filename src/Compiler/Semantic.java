@@ -14,6 +14,7 @@ import Compiler.SemanticSymbol.SemanticSymbol;
 import Compiler.SemanticSymbol.VariablesSymbol;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java_cup.runtime.Symbol;
 
 /**
@@ -87,7 +88,7 @@ class Semantic {
             SR_Id idRegistry = (SR_Id)semanticStack.pop();
             String name = idRegistry.getName();
             int line = idRegistry.getLine();
-            if(!symbolTable.isRepeated(name, type, actualScope)){
+            if(!symbolTable.isSymbolOnTable(name, actualScope)){
                 SemanticSymbol newSymbol = new VariablesSymbol(line, actualScope, name, type, "0");
                 symbolTable.addSymbol(newSymbol);
             }else{
@@ -97,66 +98,97 @@ class Semantic {
         // Remove type from semantic stack
         semanticStack.pop();
     }
-    public void insertVariableDefinition(){
+    public void insertVariableDefinition(){//TODO PARENTESISSISISIS
         boolean endExpression = false;
+        boolean isExpressionValid = true;
         ArrayList<SemanticRegistry> tmpExpression = new ArrayList<>();
         while(!endExpression){
             SemanticRegistry lastElement = semanticStack.pop();
-            
-            
-            tmpExpression.add(lastElement);
-            
-            if(tmpExpression.size()!= 0 && tmpExpression.size()%3 == 0){
-                int lastIndex = tmpExpression.size() - 1;
-                SR_DO lastDO1 = (SR_DO)tmpExpression.get(lastIndex);
-                SR_Operator lastOperator = (SR_Operator)tmpExpression.get(lastIndex-1);
-                SR_DO lastDO2 = (SR_DO)tmpExpression.get(lastIndex-2);
-                
-                if(validateExpression(lastDO1, lastOperator, lastDO2)){
-                    //TODO
-                }
-                else{
-                    //TODO clean semantic stack until 'ID ='
-                }
-                /*
-                 String name = idRegistry.getName();
-                int line = idRegistry.getLine();
-                if(!symbolTable.isRepeated(name, type, actualScope)){
-                    SemanticSymbol newSymbol = new VariablesSymbol(line, actualScope, name, type, "0");
-                    symbolTable.addSymbol(newSymbol);
-                }else{
-                    semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.REPEATED_VARIABLE.getDescription()+" '"+name+"' "+"AT LINE: "+line);
-                }*/
+            if(lastElement instanceof SR_Operator && ((SR_Operator)lastElement).getValue().equals("=")){
+                endExpression = true;
             }
             
-            //TODO validate = to exit while
+            if(!endExpression && isExpressionValid){
+                tmpExpression.add(lastElement);
+
+                if(tmpExpression.size()!= 0 && tmpExpression.size()%3 == 0){
+                    int lastIndex = tmpExpression.size() - 1;
+                    SR_DO lastDO1 = (SR_DO)tmpExpression.remove(lastIndex);
+                    SR_Operator lastOperator = (SR_Operator)tmpExpression.remove(lastIndex-1);
+                    SR_DO lastDO2 = (SR_DO)tmpExpression.remove(lastIndex-2);
+
+                    ArrayList<SemanticRegistry> expressionValidated = validateExpression(lastDO1, lastOperator, lastDO2);
+                    if(expressionValidated != null){
+                        tmpExpression.addAll(expressionValidated);
+                    }
+                    else{
+                        isExpressionValid = false;
+                    }
+                }
+            }
         }
         
+        SR_DO variable = (SR_DO)semanticStack.pop(); //Varible to assign expression
+        if(isExpressionValid){        
+            if(variable.getConstantType().equals(((SR_DO)tmpExpression.get(0)).getConstantType())){
+                //TODO generate assembler code to assign expression to variable
+            }
+            else{
+                //TODO type error
+                //semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.REPEATED_VARIABLE.getDescription()+" '"+name+"' "+"AT LINE: "+line);
+            }
+        }
     }
     
     // -------------------------- Auxiliar functions --------------------------
-    public boolean validateExpression(SR_DO lastDO1, SR_Operator lastOperator, SR_DO lastDO2){
+    public  ArrayList<SemanticRegistry> validateExpression(SR_DO lastDO1, SR_Operator lastOperator, SR_DO lastDO2){        
         if(lastDO1.getConstantType() == null){
-            //TODO search variable type on symbol table
-            //TODO set constantType
+            lastDO1.setConstantType(symbolTable.getVariableType(lastDO1.getValue(),actualScope));
         }
         if(lastDO2.getConstantType() == null){
-            //TODO search variable type on symbol table
-            //TODO set constantType
+            lastDO2.setConstantType(symbolTable.getVariableType(lastDO2.getValue(),actualScope));
         }
         
-        if(lastDO1.getConstantType() == lastDO2.getConstantType()){
-            if(lastDO1.getType() == lastDO2.getType()){
-                //TODO do operation (Constant Folding)
-                //Find a way to return result where the function were called xD
+        if(lastDO1.getConstantType() != null || lastDO2.getConstantType() !=null){
+            if(lastDO1.getConstantType().equals(lastDO2.getConstantType())){
+                if(lastDO1.getType().equals("CONSTANT") && lastDO1.getType().equals(lastDO2.getType())){
+                    if(lastOperator.getType().equals("ARITHMETIC")){
+                        //Constant folding
+                        int valueExpression1 = Integer.parseInt(lastDO1.getValue()); 
+                        int valueExpression2 = Integer.parseInt(lastDO2.getValue()); 
+                        int newExpression = 0;
+                        
+                        if(lastOperator.getValue().equals("+")){
+                            newExpression = valueExpression1 + valueExpression2;
+                        }
+                        else{
+                            newExpression = valueExpression1 - valueExpression2;
+                        }
+                        
+                        SR_DO newExpressionDO = new SR_DO(lastDO1.getType(),lastDO1.getConstantType(),String.valueOf(newExpression),lastDO1.getLine());
+                        return new ArrayList<SemanticRegistry>(Arrays.asList(newExpressionDO));
+                    }
+                    else{
+                        //TODO add wrong operator error
+                        //semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.REPEATED_VARIABLE.getDescription()+" '"+name+"' "+"AT LINE: "+line);
+                        return null;
+                    }
+                }//Else: return expression as it is (return at the end of this function)
+            }
+            else{
+                //TODO type error
+               // semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.REPEATED_VARIABLE.getDescription()+" '"+name+"' "+"AT LINE: "+line);
+                return null;
             }
         }
         else{
-            //TODO error de tipo
-            return false;
+            //TODO add variable not defined error
+            //semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.REPEATED_VARIABLE.getDescription()+" '"+name+"' "+"AT LINE: "+line);
+            return null;
         }
         
-        return true;
+        ArrayList<SemanticRegistry> result = new ArrayList<SemanticRegistry>(Arrays.asList(lastDO2, lastOperator,lastDO1));
+        return result;
     }
     
     //PRINT

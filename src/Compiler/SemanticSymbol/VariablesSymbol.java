@@ -21,6 +21,5 @@ public class VariablesSymbol extends SemanticSymbol{
     }
     public String getValue() {
         return value;
-    }
-    
+    }    
 }
