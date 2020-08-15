@@ -17,6 +17,10 @@ public enum ErrorsEnum {
     CONSSTRINGERROR(5,"String doesnt allow multiple lines"),
     MULTICOMMENTERROR(6,"The commentary is never closed"),
     REPEATED_VARIABLE(7,"Variable already defined"),
+    WRONG_OPERATOR(8,"Operation not allowed for this type of variables"),
+    WRONG_TYPES_ASSIGNATION(9,"Incompatible types on assignation"),
+    WRONG_TYPES_EXPRESSION(10,"Incompatible types on expression"),
+    VARIABLE_NOT_DEFINED(11,"Variable not defined"),
     ;
     
   private final int code;
