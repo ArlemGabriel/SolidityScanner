@@ -27,6 +27,8 @@ class Semantic {
     private SemanticStack semanticStack;
     private SymbolTable symbolTable;
     private int actualScope;
+    static ArrayList<String> intsTypes = new ArrayList<>(Arrays.asList("CONSINTEGER","int8","int16","int32","int64","int128","int256"
+                                       ,"uint","uint8","uint16","uint32","uint64","uint128","uint256"));
     
     public Semantic(){
         symbolTable = new SymbolTable();
@@ -56,11 +58,17 @@ class Semantic {
     }
     
     public void rememberType(String type, int line){
+        if(intsTypes.contains(type)){
+            type = "int";
+        }
         SR_Type registryType= new SR_Type(type,line);
         semanticStack.push(registryType);
     }
     
     public void rememberDO(String type, String constantType, String value, int line){
+        if(intsTypes.contains(constantType)){
+            constantType = "int";
+        }
         SR_DO registryDO = new SR_DO(type, constantType, value, line);
         semanticStack.push(registryDO);
     }
@@ -77,7 +85,7 @@ class Semantic {
     
     // -------------------------- Validate semantic stack --------------------------
     // ------------------------------ And generate code ----------------------------
-    public void insertDeclaration(){
+    public void insertDeclaration(){//TODO generate declaration code
         String type = "";
         for(SemanticRegistry sr: semanticStack.getStack()){
             if(sr instanceof SR_Type){
@@ -129,13 +137,19 @@ class Semantic {
         }
         
         SR_DO variable = (SR_DO)semanticStack.pop(); //Varible to assign expression
-        if(isExpressionValid){        
-            if(variable.getConstantType().equals(((SR_DO)tmpExpression.get(0)).getConstantType())){
+        
+        if(isExpressionValid){
+            variable.setConstantType(symbolTable.getVariableType(variable.getValue(),actualScope));
+            SR_DO expressionSample = (SR_DO) tmpExpression.get(0);
+            if(symbolTable.getVariableType(variable.getValue(),actualScope) == null){
+                semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.VARIABLE_NOT_DEFINED.getDescription()+ " AT LINE: "+String.valueOf(variable.getLine()));
+            }
+            else if(variable.getConstantType().equals(expressionSample.getConstantType())){
+                System.out.println("OK!!! "+expressionSample.getValue());
                 //TODO generate assembler code to assign expression to variable
             }
             else{
-                //TODO type error
-                //semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.REPEATED_VARIABLE.getDescription()+" '"+name+"' "+"AT LINE: "+line);
+                semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.WRONG_TYPES_ASSIGNATION.getDescription()+ " AT LINE: "+String.valueOf(variable.getLine()));
             }
         }
     }
@@ -169,21 +183,18 @@ class Semantic {
                         return new ArrayList<SemanticRegistry>(Arrays.asList(newExpressionDO));
                     }
                     else{
-                        //TODO add wrong operator error
-                        //semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.REPEATED_VARIABLE.getDescription()+" '"+name+"' "+"AT LINE: "+line);
+                        semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.WRONG_OPERATOR.getDescription()+ " AT LINE: "+String.valueOf(lastDO1.getLine()));
                         return null;
                     }
                 }//Else: return expression as it is (return at the end of this function)
             }
             else{
-                //TODO type error
-               // semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.REPEATED_VARIABLE.getDescription()+" '"+name+"' "+"AT LINE: "+line);
+                semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.WRONG_TYPES_EXPRESSION.getDescription()+ " AT LINE: "+String.valueOf(lastDO1.getLine()));
                 return null;
             }
         }
         else{
-            //TODO add variable not defined error
-            //semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.REPEATED_VARIABLE.getDescription()+" '"+name+"' "+"AT LINE: "+line);
+            semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.VARIABLE_NOT_DEFINED.getDescription()+ " AT LINE: "+String.valueOf(lastDO1.getLine()));
             return null;
         }
         

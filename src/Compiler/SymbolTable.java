@@ -38,7 +38,7 @@ public class SymbolTable {
     public String getVariableType(String name, int scope){
         for(SemanticSymbol semanticSymbol: symbolTable){
             if(semanticSymbol.getName().equals(name) 
-                    && semanticSymbol.getScope()==scope){
+                    /*&& semanticSymbol.getScope()==scope*/){
                 return semanticSymbol.getType();
             }
         }

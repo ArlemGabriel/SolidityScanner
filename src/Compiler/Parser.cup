@@ -15,7 +15,7 @@ parser code
     //When a sintax error happens the following function catches it automatically
     public void syntax_error(Symbol token){
         this.lastToken = token;
-        int line = tokenright + 1;
+        int line = token.right + 1;
         int column = token.left + 1;
 
         String errorMsg = "Sintax Error in line: " + line +", column: "+column+", before or at token: '"+String.valueOf(token) +"'\n";
@@ -266,7 +266,7 @@ functions ::= FUNCTION rest_function
             | //Empty
 ;
 
-rest_function ::= ID LPAREN function_parameters RPAREN function_modifier function_return_value LBRACKET {:semantic.actualScopeSum();:} function_block RBRACKET other_functions
+rest_function ::= ID {:semantic.actualScopeSum();:} LPAREN function_parameters RPAREN function_modifier function_return_value LBRACKET function_block RBRACKET other_functions
                 | error RBRACKET {:print_error("Wrong function definition");add_error_count();:}
 ;
 
@@ -322,13 +322,13 @@ other_statements ::= variable_assignment other_statements
 
 // +++ Functions statements +++
 // --- Assignment ---
-variable_assignment ::= id_inside_function:token {:semantic.rememberDO("VARIABLE", null, String.valueOf(token),tokenright + 1);:} EQUAL:token2 {:semantic.rememberOperator("ARITHMETIC", String.valueOf(token2), token2right + 1);:}  expression SEMICOLON
+variable_assignment ::= id_inside_function:token {:semantic.rememberDO("VARIABLE", null, String.valueOf(token),tokenright + 1);:} EQUAL:token2 {:semantic.rememberOperator("ARITHMETIC", String.valueOf(token2), token2right + 1);:}  expression SEMICOLON {:semantic.insertVariableDefinition();:}
                         | id_inside_function error SEMICOLON {:print_error("Wrong statement of variable assignment");add_error_count();:}
                         | id_inside_function error RBRACKET {:print_error("Wrong statement of variable assignment");add_error_count();:}
 ;
 
 // --- Expressions ---
-expression ::= LPAREN expression RPAREN conditional_expression rest_of_expression
+expression ::= LPAREN:token {:semantic.rememberOperator("PRECEDENCE", String.valueOf(token), tokenright + 1);:} expression RPAREN:token2 {:semantic.rememberOperator("PRECEDENCE", String.valueOf(token2), token2right + 1);:} conditional_expression rest_of_expression
 		| function_call rest_of_expression
                 | value_expression rest_of_expression
                 | LOGICNEGATION expression
