@@ -30,7 +30,7 @@ parser code
     public void unrecovered_syntax_error(Symbol token) throws java.lang.Exception{
         int lastLine = this.lastToken.right + 1;
         int lastColumn = this.lastToken.left + 1;
-        int currentLine = tokenright + 1;
+        int currentLine = token.right + 1;
         int currentColumn = token.left + 1;
 
         String errorMsg = "\nCouldn't recover from Sintax Error:\n"+
@@ -189,7 +189,7 @@ other_enum_id ::= COMMA ID other_enum_id
 ;
 
 // *** Variables ***
-variables ::= type:token {:semantic.rememberType(String.valueOf(token),tokenright);:} rest_variable
+variables ::= type:token {:semantic.rememberType(String.valueOf(token),tokenright+1);:} rest_variable
             | //Empty
 ;
 
@@ -197,9 +197,9 @@ rest_variable ::= LBRACE array_length RBRACE aux_variables SEMICOLON {:semantic.
                 | aux_variables SEMICOLON {:semantic.insertDeclaration();:} variables
 ;
 
-aux_variables ::=  PUBLIC ID:token {:semantic.rememberId(String.valueOf(token),tokenright);:} variable_optional_assignment other_variables
-                | PRIVATE ID:token {:semantic.rememberId(String.valueOf(token),tokenright);:} variable_optional_assignment other_variables
-                | ID:token {:semantic.rememberId(String.valueOf(token),tokenright);:} variable_optional_assignment other_variables 
+aux_variables ::=  PUBLIC ID:token {:semantic.rememberId(String.valueOf(token),tokenright+1);:} variable_optional_assignment other_variables
+                | PRIVATE ID:token {:semantic.rememberId(String.valueOf(token),tokenright+1);:} variable_optional_assignment other_variables
+                | ID:token {:semantic.rememberId(String.valueOf(token),tokenright+1);:} variable_optional_assignment other_variables 
                 | ID error {:print_error("Wrong variable definition, probably semicolon missing");add_error_count();:}                
                 | error {:print_error("Variable definition error, missing identifier");add_error_count();:}
 ;
@@ -276,11 +276,11 @@ other_functions ::= FUNCTION rest_function
                  | variables error RBRACKET {:print_error("Variable can't be done after structures");add_error_count();:}
 ;
 
-function_parameters ::= type ID other_function_parameters 
+function_parameters ::= type:token1 {:semantic.rememberType(String.valueOf(token1),token1right+1);:} ID:token2 {:semantic.rememberId(String.valueOf(token2),token2right+1);:} {:semantic.insertDeclaration();:} other_function_parameters 
                         | //Empty
                         | error {:print_error("Wrong parameter(s) of function");add_error_count();:}
 ;
-other_function_parameters ::= COMMA type ID function_parameters 
+other_function_parameters ::= COMMA type:token1 {:semantic.rememberType(String.valueOf(token1),token1right+1);:} ID:token2 {:semantic.rememberId(String.valueOf(token2),token2right+1);:} {:semantic.insertDeclaration();:}  other_function_parameters  
                             | //Empty
                             | COMMA error {:print_error("Function error with parameter after a comma, probably missing");add_error_count();:}
 ;

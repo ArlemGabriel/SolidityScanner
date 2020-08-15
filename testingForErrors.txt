@@ -2,10 +2,9 @@ pragma solidity ^0.6.1;
 
 
 contract Contrato{
-	int8 a;	
-	int b;
-	function a(int a) {
-		int b;
+	string a;	
+	string b;
+	function a(int j , string c , int z) { int b;
 		a = 8;
 				
 	}
