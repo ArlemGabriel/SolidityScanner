@@ -4,10 +4,13 @@ pragma solidity ^0.6.1;
 contract Contrato{
 	int8 a;	
 	int b;
-	function a(int a) {
+	int c;
+	int d;
+	int e;
+	int f;
+	function a(int z, int b) {
 		int b;
-		a = 8;
-				
+		a = 1 + (2 - (3 + (4 + 5) + 6));
 	}
 	/**enum a{} //Error
 	enum aa{a,} //Error
