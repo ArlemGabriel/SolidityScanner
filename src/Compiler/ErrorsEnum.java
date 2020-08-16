@@ -21,7 +21,8 @@ public enum ErrorsEnum {
     WRONG_TYPES_ASSIGNATION(9,"Incompatible types on assignation"),
     WRONG_TYPES_EXPRESSION(10,"Incompatible types on expression"),
     VARIABLE_NOT_DEFINED(11,"Variable not defined"),
-    ;
+    MISSING_RETURNS(12,"No returns declaration on function"),
+    MISSING_RETURN(13,"Missing return statement"),;
     
   private final int code;
   private final String description;

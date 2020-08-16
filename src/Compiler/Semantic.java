@@ -10,6 +10,8 @@ import Compiler.Registry.SR_Id;
 import Compiler.Registry.SR_Operator;
 import Compiler.Registry.SR_Type;
 import Compiler.Registry.SemanticRegistry;
+import Compiler.SemanticSymbol.ReturnFunctionSymbol;
+import Compiler.SemanticSymbol.ReturnsFunctionSymbol;
 import Compiler.SemanticSymbol.SemanticSymbol;
 import Compiler.SemanticSymbol.VariablesSymbol;
 import java.io.PrintStream;
@@ -78,6 +80,7 @@ class Semantic {
         SR_Operator registryOperator = new SR_Operator(type, value, line);
         semanticStack.push(registryOperator);
     }
+    
     //int a,b,c;
     //int a=5,b=7,c=2;
     //int a=b, c=g;
@@ -106,6 +109,59 @@ class Semantic {
         }
         // Remove type from semantic stack
         semanticStack.pop();
+    }
+    public void insertFunctionReturns(){//TODO generate declaration code
+        String type = "";
+        for(SemanticRegistry sr: semanticStack.getStack()){
+            if(sr instanceof SR_Type){
+                type = ((SR_Type) sr).getType();
+            }
+        }
+        while(!(semanticStack.getLastElement() instanceof SR_Type)){
+            SR_Id idRegistry = (SR_Id)semanticStack.pop();
+            String name = idRegistry.getName();
+            int line = idRegistry.getLine();
+            //int line, int scope, String name, String type, String value
+            SemanticSymbol newSymbol = new ReturnsFunctionSymbol(line, actualScope, name, type, "RETURNS");
+            symbolTable.addSymbol(newSymbol);
+        }
+        // Remove type from semantic stack
+        semanticStack.pop();
+    }
+    public void insertFunctionReturn(){//TODO generate declaration code
+        String value = "";
+        for(SemanticRegistry sr: semanticStack.getStack()){
+            if(sr instanceof SR_Id){
+                value = ((SR_Id) sr).getName();
+            }
+        }
+        SR_Id idRegistry = (SR_Id)semanticStack.pop();
+        String name = idRegistry.getName();
+        int line = idRegistry.getLine();
+        SemanticSymbol newSymbol = new ReturnFunctionSymbol(line, actualScope, name, "", "RETURN");
+        symbolTable.addSymbol(newSymbol);
+        semanticStack.pop();
+    }
+    public void validateFunctionReturn(){
+        //First Case: Function with RETURNS but without RETURN, error
+        //Second Case: Function without RETURNS but with RETURN, error
+        //Third Case: Function without RETURNS and RETURN ,no error
+        Boolean isReturns = false;
+        Boolean isReturn = false;
+        for(SemanticSymbol ss: symbolTable.getSymbolTable()){
+            if(ss instanceof ReturnFunctionSymbol){
+                isReturn = true;
+            }else if(ss instanceof ReturnsFunctionSymbol){
+                isReturns = true;
+            }
+        }
+        if(isReturns ==true && isReturn==false){
+            semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.MISSING_RETURN.getDescription());
+        }
+        if(isReturns ==false && isReturn==true){
+            semanticErrors.addSemanticError("ERROR: "+ErrorsEnum.MISSING_RETURNS.getDescription());
+        }
+        
     }
     public void insertVariableDefinition(){//TODO PARENTESISSISISIS
         boolean endExpression = false;
@@ -453,11 +509,20 @@ class Semantic {
                 System.out.println("TYPE: "+((SR_DO) sr).getType()+"\tVALUE: "+((SR_DO) sr).getValue()+ "\tLINE: "+((SR_DO) sr).getLine()+ "\tCONSTANT: "+((SR_DO) sr).getConstantType()+ "\tLINE: "+((SR_DO) sr).getLine());
             }else if(sr instanceof SR_Operator){
                 System.out.println("VALUE: "+((SR_Operator) sr).getValue()+ "\tLINE: "+((SR_Operator) sr).getLine());
+            }else if(sr instanceof SR_Operator){
+                System.out.println("VALUE: "+((SR_Operator) sr).getValue()+ "\tLINE: "+((SR_Operator) sr).getLine());
             }
         }
         
         for(SemanticSymbol ss: symbolTable.getSymbolTable()){
-            System.out.println("TYPE: "+((VariablesSymbol) ss).getType()+"\tID: "+((VariablesSymbol) ss).getName()+ "\tVALUE: "+((VariablesSymbol) ss).getValue()+ "\tLINE: "+((VariablesSymbol) ss).getLine() + "\tSCOPE: "+((VariablesSymbol) ss).getScope());
+            if(ss instanceof VariablesSymbol){
+                System.out.println("TYPE: "+((VariablesSymbol) ss).getType()+"\tID: "+((VariablesSymbol) ss).getName()+ "\tVALUE: "+((VariablesSymbol) ss).getValue()+ "\tLINE: "+((VariablesSymbol) ss).getLine() + "\tSCOPE: "+((VariablesSymbol) ss).getScope());
+            }else if(ss instanceof ReturnsFunctionSymbol){
+                System.out.println("TYPE: "+((ReturnsFunctionSymbol) ss).getType()+"\tID: "+((ReturnsFunctionSymbol) ss).getName()+ "\tVALUE: "+((ReturnsFunctionSymbol) ss).getValue()+ "\tLINE: "+((ReturnsFunctionSymbol) ss).getLine() + "\tSCOPE: "+((ReturnsFunctionSymbol) ss).getScope());
+            }else if(ss instanceof ReturnFunctionSymbol){
+                System.out.println("TYPE: "+((ReturnFunctionSymbol) ss).getType()+"\tID: "+((ReturnFunctionSymbol) ss).getName()+ "\tVALUE: "+((ReturnFunctionSymbol) ss).getValue()+ "\tLINE: "+((ReturnFunctionSymbol) ss).getLine() + "\tSCOPE: "+((ReturnFunctionSymbol) ss).getScope());
+            }
+            
         }
         for(String se: semanticErrors.getSemanticErrors()){
             System.out.println(se);
