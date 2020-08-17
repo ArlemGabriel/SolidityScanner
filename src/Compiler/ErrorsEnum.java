@@ -21,8 +21,12 @@ public enum ErrorsEnum {
     WRONG_TYPES_ASSIGNATION(9,"Incompatible types on assignation"),
     WRONG_TYPES_EXPRESSION(10,"Incompatible types on expression"),
     VARIABLE_NOT_DEFINED(11,"Variable not defined"),
-    MISSING_RETURNS(12,"No returns declaration on function"),
-    MISSING_RETURN(13,"Missing return statement"),;
+    MISSING_RETURNS(12,"No returns declaration but this function is trying to return a value"),
+    MISSING_RETURN(13,"Missing return statement, function declared with returns"),
+    BREAK_ON_INVALID_SCOPE(14,"Break statement on invalid scope"),
+    CONTINUE_ON_INVALID_SCOPE(15, "Continue statement on invalid scope"),
+    INVALID_OPERATOR(16,"Invalid expression boolean expected"),
+    ERROR_PROFE(17,"Ericka Marin Shumman, consideramos solamente operaciones binarias :( Posdata: Puntos extra por mensaje personalizado");
     
   private final int code;
   private final String description;

@@ -2,7 +2,32 @@ pragma solidity ^0.6.1;
 
 
 contract Contrato{
-	int8 a;	
+	int c;
+	int d;
+	function b(int a) public{
+		while(a>=5){
+			
+		}
+		a=5;
+		while(c){
+			continue;
+			if(true){
+				continue;
+				while(false){
+					break;
+				}
+				
+			}else{
+				break;
+			}
+			
+		}
+		while(true){
+
+		}
+	}
+	
+	/**int8 a;	
 	int b;
 	int c;
 	int d;
@@ -12,7 +37,7 @@ contract Contrato{
 		int b;
 		a = 1 + (2 - (3 + (4 + 5) + 6));
 	}
-	/**enum a{} //Error
+	enum a{} //Error
 	enum aa{a,} //Error
 	enum aa{a}
 

@@ -266,7 +266,7 @@ functions ::= FUNCTION rest_function
             | //Empty
 ;
 
-rest_function ::= ID {:semantic.actualScopeSum();:} LPAREN function_parameters RPAREN function_modifier function_return_value LBRACKET function_block RBRACKET {:semantic.validateFunctionReturn();:} other_functions 
+rest_function ::= ID:token {:semantic.actualScopeSum();semantic.insertFunction(String.valueOf(token),tokenright+1);:} LPAREN function_parameters RPAREN function_modifier function_return_value LBRACKET function_block RBRACKET {:semantic.validateFunctionReturn();:} other_functions 
                 | error RBRACKET {:print_error("Wrong function definition");add_error_count();:}
 ;
 
@@ -307,6 +307,10 @@ statements ::= variable_assignment other_statements
             //POSIBLES ERRORS FOR STATEMENTS INSIDE FUNCTION
             | FUNCTION error SEMICOLON {:print_error("Wrong function block, probably closing bracket of function missing");add_error_count();:}
             | FUNCTION error RBRACKET {:print_error("Wrong function block, probably closing bracket of function missing");add_error_count();:}
+            | BREAK error SEMICOLON {:print_error("Break can only be called inside loops");add_error_count();:}
+            | BREAK error RBRACKET {:print_error("Break can only be called inside loops");add_error_count();:}
+            | CONTINUE error SEMICOLON {:print_error("Continue can only be called inside loops");add_error_count();:}
+            | CONTINUE error RBRACKET {:print_error("Continue can only be called inside loops");add_error_count();:}
 ;
 
 other_statements ::= variable_assignment other_statements
@@ -318,6 +322,10 @@ other_statements ::= variable_assignment other_statements
             | FUNCTION error SEMICOLON {:print_error("Wrong function block, probably closing bracket of function missing");add_error_count();:}
             | FUNCTION error RBRACKET {:print_error("Wrong function block, probably closing bracket of function missing");add_error_count();:}
             | variables error {:print_error("Variables only can be defined at the starts of the function/contract");add_error_count();:}
+            | BREAK error SEMICOLON {:print_error("Break can only be called inside loops");add_error_count();:}
+            | BREAK error RBRACKET {:print_error("Break can only be called inside loops");add_error_count();:}
+            | CONTINUE error SEMICOLON {:print_error("Continue can only be called inside loops");add_error_count();:}
+            | CONTINUE error RBRACKET {:print_error("Continue can only be called inside loops");add_error_count();:}
 ;
 
 // +++ Functions statements +++
@@ -372,7 +380,7 @@ operator ::= LOGICAND
             | DIVEQUAL
 ;
 
-value_expression ::= value:token
+value_expression ::= value
                     | id_inside_function:token {:semantic.rememberDO("VARIABLE", null, String.valueOf(token),tokenright + 1);:}
 ;
 
@@ -391,7 +399,7 @@ control_structures ::= while_statement
                         | do_while_statement 
                         | if_statement
 ;
-while_statement ::= WHILE LPAREN expression RPAREN LBRACKET loop_statement RBRACKET
+while_statement ::= WHILE:token {:semantic.rememberWhile(String.valueOf(token),tokenright+1);semantic.actualScopeSum();:} LPAREN expression {:semantic.insertWhile();:}RPAREN LBRACKET loop_statement RBRACKET {:semantic.actualScopeSubtract();semantic.whilesSubtract();:}
                     | WHILE error RBRACKET{:print_error("While wrong definition");add_error_count();:}
 ;
 for_statement ::= FOR LPAREN variable_assignment /*Semicolon on variable_assigment*/ expression SEMICOLON expression RPAREN LBRACKET loop_statement RBRACKET
@@ -400,10 +408,10 @@ for_statement ::= FOR LPAREN variable_assignment /*Semicolon on variable_assigme
 do_while_statement ::= DO LBRACKET loop_statement RBRACKET WHILE LPAREN expression RPAREN
                     | DO error RBRACKET{:print_error("Do while wrong definition");add_error_count();:}
 ;
-if_statement ::= IF LPAREN expression RPAREN LBRACKET statements RBRACKET else_statement
+if_statement ::= IF:token {:semantic.rememberIf(String.valueOf(token),tokenright+1);semantic.actualScopeSum();:} LPAREN expression{:semantic.insertIf();:} RPAREN LBRACKET loop_statement RBRACKET{:semantic.actualScopeSubtract();:} else_statement
                 | IF error RBRACKET {:print_error("If wrong definition");add_error_count();:}
 ;
-else_statement ::= ELSE LBRACKET statements RBRACKET 
+else_statement ::= ELSE:token {:semantic.rememberElse(String.valueOf(token),tokenright+1);semantic.actualScopeSum();semantic.insertElse();:} LBRACKET loop_statement RBRACKET {:semantic.actualScopeSubtract();:}
                    | //Empty
                    | ELSE error RBRACKET {:print_error("Else wrong definition");add_error_count();:}
 ;
@@ -411,8 +419,8 @@ loop_statement ::= variable_assignment loop_statement
                 | expression SEMICOLON loop_statement
                 | control_structures loop_statement 
                 | return_statement loop_statement 
-                | BREAK SEMICOLON loop_statement
-                | CONTINUE SEMICOLON loop_statement
+                | BREAK:token {:semantic.insertBreakContinue(String.valueOf(token),tokenright + 1);:} SEMICOLON loop_statement
+                | CONTINUE:token1 {:semantic.insertBreakContinue(String.valueOf(token1),token1right + 1);:} SEMICOLON loop_statement
                 | //EMPTY
                 | error SEMICOLON {:print_error("Error inside loop");add_error_count();:}
                 | error RBRACKET {:print_error("Error inside loop");add_error_count();:}
@@ -423,7 +431,7 @@ return_statement ::= RETURN return_value {:semantic.insertFunctionReturn();:} SE
                     | RETURN error {:print_error("Missing return value");add_error_count();:}
 ;
 return_value ::= id_inside_function:token {:semantic.rememberId(String.valueOf(token),tokenright+1);:}
-                | value:token2 {:semantic.rememberId(String.valueOf(token2),token2right+1);:}
+                | value
 ;
 value ::= CONSSTRING:token {:semantic.rememberDO("CONSTANT","CONSSTRING",String.valueOf(token),tokenright + 1);:}
         | CONSINTEGER:token {:semantic.rememberDO("CONSTANT","CONSINTEGER",String.valueOf(token),tokenright + 1);:}

@@ -9,20 +9,14 @@ package Compiler.SemanticSymbol;
  *
  * @author Arlem Gabriel
  */
- public class SemanticSymbol {
-    int line;
-    int scope;
-    String name; //
-    String type; //CONSINTEGER
+public class FunctionSymbol extends SemanticSymbol{
     
-    public SemanticSymbol(){};
-
-    public SemanticSymbol(int line, int scope, String name) {
+    public FunctionSymbol(int line, int scope, String name, String type) {
         this.line = line;
         this.scope = scope;
         this.name = name;
+        this.type = type;
     }
-    
 
     public int getLine() {
         return line;
@@ -39,6 +33,5 @@ package Compiler.SemanticSymbol;
     public String getType() {
         return type;
     }
-    
     
 }

@@ -33,6 +33,7 @@ public class SemanticStack {
     public SemanticRegistry getLastElement(){
         return stack.get(stack.size()-1);
     }
-
-    
+    public SemanticRegistry getElement(int index){
+        return stack.get(index);
+    }
 }
