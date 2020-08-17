@@ -121,7 +121,7 @@ precedence left EXPONENTIATION;
 /* -------------------------------- Grammar -------------------------------- */
 start with start_production;
 
-start_production ::= head body {:print_error_count();semantic.print();:}
+start_production ::= head body {:print_error_count();semantic.assemblerFileCreation();:}
                     | error body {:print_error("General error or wrong file format");:}
 ; 
 head ::= PRAGMA SOLIDITY version experimental_version SEMICOLON

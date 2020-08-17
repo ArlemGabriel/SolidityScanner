@@ -42,6 +42,7 @@ class Semantic {
     private int lastScope;
     static ArrayList<String> intsTypes;
     public static final String ANSI_RED = "\u001B[31m";
+    private String assemblerCode;
 
     public Semantic() {
         symbolTable = new SymbolTable();
@@ -50,6 +51,7 @@ class Semantic {
         actualScopeList = new ArrayList<>(Arrays.asList(0));
         intsTypes = new ArrayList<>(Arrays.asList("CONSINTEGER", "int8", "int16", "int32", "int64", "int128", "int256",
                  "uint", "uint8", "uint16", "uint32", "uint64", "uint128", "uint256"));
+        assemblerCode = "";
         lastScope = 0;
         numWhiles = 0;
     }
@@ -556,7 +558,13 @@ class Semantic {
             }
         }
     }
-
+    public void assemblerFileCreation(){
+        if(semanticErrors.getSemanticErrors().isEmpty()){
+            //TODO: Print file
+            System.out.print(assemblerCode);
+        }
+        print();
+    }
     // -------------------------- Auxiliar functions --------------------------
     public boolean validateBooleanExpression() {
         if (semanticStack.getStack().size() == 4) {
@@ -659,7 +667,7 @@ class Semantic {
 
     //PRINT
     public void print() {
-        for (SemanticRegistry sr : semanticStack.getStack()) {
+        /*for (SemanticRegistry sr : semanticStack.getStack()) {
             if (sr instanceof SR_Type) {
                 System.out.println("TYPE: " + ((SR_Type) sr).getType() + "\tLINE: " + ((SR_Type) sr).getLine());
             } else if (sr instanceof SR_Id) {
@@ -671,7 +679,7 @@ class Semantic {
             } else if (sr instanceof SR_While) {
                 System.out.println("VALUE: " + ((SR_While) sr).getName() + "\tLINE: " + ((SR_While) sr).getLine());
             }
-        }
+        }*/
         System.out.println("\n");
         for (SemanticSymbol ss : symbolTable.getSymbolTable()) {
             if (ss instanceof VariablesSymbol) {
@@ -693,6 +701,6 @@ class Semantic {
         for (String se : semanticErrors.getSemanticErrors()) {
             System.out.println(ANSI_RED+se);
         }
-        System.out.println("STACK: " + semanticStack.getStack().size());
+        //System.out.println("STACK: " + semanticStack.getStack().size());
     }
 }
