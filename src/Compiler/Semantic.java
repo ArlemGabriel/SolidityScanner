@@ -21,10 +21,11 @@ import Compiler.SemanticSymbol.ReturnsFunctionSymbol;
 import Compiler.SemanticSymbol.SemanticSymbol;
 import Compiler.SemanticSymbol.VariablesSymbol;
 import Compiler.SemanticSymbol.WhileSymbol;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java_cup.runtime.Symbol;
 
 /**
@@ -40,9 +41,13 @@ class Semantic {
     private ArrayList<Integer> actualScopeList;
     private int numWhiles;
     private int lastScope;
+    private ArrayList<Integer> breakContinueScope;
+    private ArrayList<Integer> jmpElseScope;
     static ArrayList<String> intsTypes;
     public static final String ANSI_RED = "\u001B[31m";
     private String assemblerCode;
+    private String assemblerDataSegment;
+    Map<String, String> possibleJumps;
 
     public Semantic() {
         symbolTable = new SymbolTable();
@@ -52,8 +57,20 @@ class Semantic {
         intsTypes = new ArrayList<>(Arrays.asList("CONSINTEGER", "int8", "int16", "int32", "int64", "int128", "int256",
                  "uint", "uint8", "uint16", "uint32", "uint64", "uint128", "uint256"));
         assemblerCode = "";
+        
+        assemblerDataSegment =  "section .data\n"
+                                + "segment .bss\n";
         lastScope = 0;
         numWhiles = 0;
+        breakContinueScope = new ArrayList<>();
+        jmpElseScope = new ArrayList<>();
+        possibleJumps = new HashMap<String, String>();
+        possibleJumps.put(">", "jg");
+        possibleJumps.put("<", "jl");
+        possibleJumps.put(">=", "jge");
+        possibleJumps.put("<=", "jle");
+        possibleJumps.put("==", "je");
+        possibleJumps.put("!=", "jne");
     }
 
     public static Semantic getInstance() {
@@ -74,6 +91,12 @@ class Semantic {
 
     public void whilesSubtract() {
         numWhiles--;
+        breakContinueScope.remove(breakContinueScope.size()-1);
+        assemblerCode += "\texitwhile"+actualScopeList.get(actualScopeList.size()-1)+":\n";
+    }
+    
+    public void createElseExitTag(){
+        assemblerCode += "\texitelse"+actualScopeList.get(actualScopeList.size()-1)+":\n";
     }
 
     // -------------------------- Semantic actions --------------------------
@@ -126,7 +149,7 @@ class Semantic {
     //int a=5,b;
     // -------------------------- Validate semantic stack --------------------------
     // ------------------------------ And generate code ----------------------------
-    public void insertDeclaration() {//TODO generate declaration code
+    public void insertDeclaration() {
         String type = "";
         for (SemanticRegistry sr : semanticStack.getStack()) {
             if (sr instanceof SR_Type) {
@@ -137,9 +160,11 @@ class Semantic {
             SR_Id idRegistry = (SR_Id) semanticStack.pop();
             String name = idRegistry.getName();
             int line = idRegistry.getLine();
-            if (!symbolTable.isSymbolOnTable(name, actualScopeList.get(actualScopeList.size() - 1))) {
-                SemanticSymbol newSymbol = new VariablesSymbol(line, actualScopeList.get(actualScopeList.size() - 1), name, type, "0");
+            int scope = actualScopeList.get(actualScopeList.size() - 1);
+            if (!symbolTable.isSymbolOnTable(name, scope)) {
+                SemanticSymbol newSymbol = new VariablesSymbol(line, scope, name, type, "0");
                 symbolTable.addSymbol(newSymbol);
+                assemblerDataSegment += "\t"+name + scope + " resb 1\n";
             } else {
                 semanticErrors.addSemanticError("ERROR: " + ErrorsEnum.REPEATED_VARIABLE.getDescription() + " '" + name + "' " + "AT LINE: " + line);
             }
@@ -150,6 +175,7 @@ class Semantic {
     public void insertFunction(String name, int line){
         SemanticSymbol newSymbol = new FunctionSymbol(line, actualScopeList.get(actualScopeList.size() - 1), name,"FUNCTION");
         symbolTable.addSymbol(newSymbol);
+        assemblerCode += "\nglobal " + name + "\n";
     }
     public void insertFunctionReturns() {//TODO generate declaration code
         String type = "";
@@ -195,20 +221,20 @@ class Semantic {
     }
 
     public void insertWhile() {
-        boolean response = validateBooleanExpression();
+        boolean response = validateBooleanExpression("while");
+        int scope = actualScopeList.get(actualScopeList.size() - 1);
+        breakContinueScope.add(scope);
         if (response) {
             while (!(semanticStack.getLastElement() instanceof SR_While)) {
-                //TODO Generate code of while
                 semanticStack.pop();
             }
             SR_While sr = (SR_While) semanticStack.pop();
             String name = sr.getName();
             int line = sr.getLine();
-            SemanticSymbol newSymbol = new WhileSymbol(line, actualScopeList.get(actualScopeList.size() - 1), name, "0");
+            SemanticSymbol newSymbol = new WhileSymbol(line, scope, name, "0");
             symbolTable.addSymbol(newSymbol);
         } else {
             while (!(semanticStack.getLastElement() instanceof SR_While)) {
-                //TODO Generate code of while
                 semanticStack.pop();
             }
             SR_While sr = (SR_While) semanticStack.pop();
@@ -217,7 +243,7 @@ class Semantic {
     }
 
     public void insertIf() {
-        boolean response = validateBooleanExpression();
+        boolean response = validateBooleanExpression("if");
         if (response) {
             while (!(semanticStack.getLastElement() instanceof SR_If)) {
                 //TODO Generate code of if
@@ -226,8 +252,10 @@ class Semantic {
             SR_If sr = (SR_If) semanticStack.pop();
             String name = sr.getName();
             int line = sr.getLine();
-            SemanticSymbol newSymbol = new IfSymbol(line, actualScopeList.get(actualScopeList.size() - 1), name, "0");
+            int scope = actualScopeList.get(actualScopeList.size() - 1);
+            SemanticSymbol newSymbol = new IfSymbol(line, scope, name, "0");
             symbolTable.addSymbol(newSymbol);
+            jmpElseScope.add(scope);
         } else {
             while (!(semanticStack.getLastElement() instanceof SR_If)) {
                 //TODO Generate code of if
@@ -241,16 +269,26 @@ class Semantic {
         SR_Else sr = (SR_Else) semanticStack.pop();
         String name = sr.getName();
         int line = sr.getLine();
-        SemanticSymbol newSymbol = new ElseSymbol(line, actualScopeList.get(actualScopeList.size() - 1), name);
+        int scope = actualScopeList.get(actualScopeList.size() - 1);
+        SemanticSymbol newSymbol = new ElseSymbol(line, scope, name);
         symbolTable.addSymbol(newSymbol);
-        //TODO: Generate Code
+        assemblerCode += "\tjmp exitelse"+scope+"\n"
+                    + "\telse"+jmpElseScope.remove(jmpElseScope.size()-1)+":\n";
     }
 
     public void insertBreakContinue(String name, int line) {
         boolean isInScope = false;
         if (numWhiles > 0/*isInScope == true*/) {
-            SemanticSymbol newSymbol = new SemanticSymbol(line, actualScopeList.get(actualScopeList.size() - 1), name);
+            int scope = actualScopeList.get(actualScopeList.size() - 1);
+            SemanticSymbol newSymbol = new SemanticSymbol(line, scope, name);
             symbolTable.addSymbol(newSymbol);
+            int scope2 = breakContinueScope.get(breakContinueScope.size()-1);
+            if (name.equals("break")) {
+                assemblerCode += "\tjmp exitwhile"+scope2+"\n";
+            }
+            else{
+                assemblerCode += "\tjmp while"+scope2+"\n";
+            }
         } else {
             if (name.equals("break")) {
                 semanticErrors.addSemanticError("ERROR: " + ErrorsEnum.BREAK_ON_INVALID_SCOPE.getDescription() + " AT LINE: " + String.valueOf(line));
@@ -532,8 +570,6 @@ class Semantic {
             if (expressionReduced) {
                 SR_DO newExpression = new SR_DO("CONSTANT", "int", String.valueOf(lastResult), resExpression.get(0).getLine());
                 resExpression = new ArrayList<SemanticRegistry>(Arrays.asList(newExpression));
-            } else {
-                Collections.reverse(resExpression);
             }
 
             System.out.println("\n\n");
@@ -547,12 +583,31 @@ class Semantic {
                 }
             }
 
-            variable.setConstantType(symbolTable.getVariableType(variable.getValue(), actualScopeList.get(actualScopeList.size() - 1)));
+            String variableName = variable.getValue();
+            variable.setConstantType(symbolTable.getVariableType(variableName, actualScopeList.get(actualScopeList.size() - 1)));
             SR_DO expressionSample = (SR_DO) resExpression.get(0);
             if (symbolTable.getVariableType(variable.getValue(), actualScopeList.get(actualScopeList.size() - 1)) == null) {
                 semanticErrors.addSemanticError("ERROR: " + ErrorsEnum.VARIABLE_NOT_DEFINED.getDescription() + " AT LINE: " + String.valueOf(variable.getLine()));
             } else if (variable.getConstantType().equals(expressionSample.getConstantType())) {
-                //TODO generate assembler code to assign expression to variable
+                lastOperator = "+";
+                assemblerCode += "\tMOV "+" EAX, 0\n";
+                for (SemanticRegistry sr : resExpression) {
+                    if (sr instanceof SR_DO) {
+                        SR_DO tmp = (SR_DO) sr;
+                        String tmpScope =  tmp.getType().equals("CONSTANT") ? "" : String.valueOf(symbolTable.getVariableScope(variableName));
+                        
+                        if (lastOperator.equals("+")) {
+                            assemblerCode += "\tADD "+" EAX, "+ tmp.getValue()+ tmpScope+"\n";
+                        } else {
+                            assemblerCode += "\tSUB "+" EAX, "+ tmp.getValue() + tmpScope+"\n";
+                        }
+                    } else {
+                        lastOperator = ((SR_Operator) sr).getValue();
+                    }
+                }
+                
+                int scopeVariable = symbolTable.getVariableScope(variableName);
+                assemblerCode += "\tMOV "+ variableName + scopeVariable+", EAX\n";
             } else {
                 semanticErrors.addSemanticError("ERROR: " + ErrorsEnum.WRONG_TYPES_ASSIGNATION.getDescription() + " AT LINE: " + String.valueOf(variable.getLine()));
             }
@@ -560,28 +615,49 @@ class Semantic {
     }
     public void assemblerFileCreation(){
         if(semanticErrors.getSemanticErrors().isEmpty()){
+            assemblerCode = assemblerDataSegment + assemblerCode;
             //TODO: Print file
             System.out.print(assemblerCode);
         }
         print();
     }
     // -------------------------- Auxiliar functions --------------------------
-    public boolean validateBooleanExpression() {
+    public boolean validateBooleanExpression(String tag) {
         if (semanticStack.getStack().size() == 4) {
             SR_DO lastDO1 = (SR_DO) semanticStack.getElement(3);
             SR_Operator operator = (SR_Operator) semanticStack.getElement(2);
             SR_DO lastDO2 = (SR_DO) semanticStack.getElement(1);
+            boolean isFirstDOVariable = false;
+            boolean isSecondDOVariable = false;
 
             if (lastDO1.getConstantType() == null) {
+                isFirstDOVariable = true;
                 lastDO1.setConstantType(symbolTable.getVariableType(lastDO1.getValue(), actualScopeList.get(actualScopeList.size() - 1)));
             }
             if (lastDO2.getConstantType() == null) {
+                isSecondDOVariable = true;
                 lastDO2.setConstantType(symbolTable.getVariableType(lastDO2.getValue(), actualScopeList.get(actualScopeList.size() - 1)));
             }
 
             if (lastDO1.getConstantType() != null && lastDO2.getConstantType() != null) {
                 if (operator.getType().equals("BOOLEAN")) {
                     if (lastDO1.getConstantType().equals(lastDO2.getConstantType())) {
+                        int scope = actualScopeList.get(actualScopeList.size() - 1);
+                        
+                        String scope1 = isFirstDOVariable ? String.valueOf(symbolTable.getVariableScope(lastDO1.getValue())) : "";
+                        String scope2 = isSecondDOVariable ? String.valueOf(symbolTable.getVariableScope(lastDO2.getValue())) : "";
+                        
+                        if(tag.equals("if")){
+                            assemblerCode += "\tcmp "+lastDO1.getValue()+scope1+", "
+                                        + lastDO2.getValue()+scope2 + "\n\t"
+                                        + possibleJumps.get(operator.getValue()) +" else"+scope+"\n";
+                        }
+                        else{
+                            assemblerCode += "\n\t"+tag +scope + ":\n"
+                                        + "\tcmp "+lastDO1.getValue()+scope1+", "
+                                        + lastDO2.getValue()+scope2 + "\n\t"
+                                        + possibleJumps.get(operator.getValue()) +" exit"+tag+scope+"\n";
+                        }
                         return true;
                     } else {
                         semanticErrors.addSemanticError("ERROR: " + ErrorsEnum.INVALID_OPERATOR.getDescription() + " AT LINE: " + String.valueOf(lastDO1.getLine()));
@@ -596,13 +672,33 @@ class Semantic {
                 return false;
             }
         } else {
+            boolean isFirstDOVariable = false;
             if (semanticStack.getStack().size() == 2) {
                 SR_DO lastDO1 = (SR_DO) semanticStack.getElement(1);
                 if (lastDO1.getConstantType() == null) {
+                    isFirstDOVariable = true;
                     lastDO1.setConstantType(symbolTable.getVariableType(lastDO1.getValue(), actualScopeList.get(actualScopeList.size() - 1)));
                 }
                 if (lastDO1.getConstantType() != null) {
                     if (lastDO1.getConstantType().equals("TRUE") || lastDO1.getConstantType().equals("FALSE") || lastDO1.getConstantType().equals("bool")) {
+                        int scope = actualScopeList.get(actualScopeList.size() - 1);
+                        
+                        String scope1 = isFirstDOVariable ? String.valueOf(symbolTable.getVariableScope(lastDO1.getValue())) : "";
+                        String value = lastDO1.getValue();
+                        if(!isFirstDOVariable)
+                            value = lastDO1.getValue().equals("true") ? "1" : "0";
+                        
+                        if(tag.equals("if")){
+                            assemblerCode += "\n\tcmp "+"0, "
+                                     + value+scope1 + "\n"
+                                     + "\tje else"+scope+"\n";
+                        }
+                        else{
+                            assemblerCode += "\n\t"+tag +scope + ":\n"
+                                        + "\tcmp "+"0, "
+                                        + value+scope1 + "\n"
+                                        + "\tje exit"+tag+scope+"\n";
+                        }
                         return true;
                     } else {
                         semanticErrors.addSemanticError("ERROR: " + ErrorsEnum.INVALID_OPERATOR.getDescription() + " AT LINE: " + String.valueOf(lastDO1.getLine()));

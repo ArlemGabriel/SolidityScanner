@@ -399,7 +399,7 @@ control_structures ::= while_statement
                         | do_while_statement 
                         | if_statement
 ;
-while_statement ::= WHILE:token {:semantic.rememberWhile(String.valueOf(token),tokenright+1);semantic.actualScopeSum();:} LPAREN expression {:semantic.insertWhile();:}RPAREN LBRACKET loop_statement RBRACKET {:semantic.actualScopeSubtract();semantic.whilesSubtract();:}
+while_statement ::= WHILE:token {:semantic.rememberWhile(String.valueOf(token),tokenright+1);semantic.actualScopeSum();:} LPAREN expression {:semantic.insertWhile();:}RPAREN LBRACKET loop_statement RBRACKET {:semantic.whilesSubtract();semantic.actualScopeSubtract();:}
                     | WHILE error RBRACKET{:print_error("While wrong definition");add_error_count();:}
 ;
 for_statement ::= FOR LPAREN variable_assignment /*Semicolon on variable_assigment*/ expression SEMICOLON expression RPAREN LBRACKET loop_statement RBRACKET
@@ -411,7 +411,7 @@ do_while_statement ::= DO LBRACKET loop_statement RBRACKET WHILE LPAREN expressi
 if_statement ::= IF:token {:semantic.rememberIf(String.valueOf(token),tokenright+1);semantic.actualScopeSum();:} LPAREN expression{:semantic.insertIf();:} RPAREN LBRACKET loop_statement RBRACKET{:semantic.actualScopeSubtract();:} else_statement
                 | IF error RBRACKET {:print_error("If wrong definition");add_error_count();:}
 ;
-else_statement ::= ELSE:token {:semantic.rememberElse(String.valueOf(token),tokenright+1);semantic.actualScopeSum();semantic.insertElse();:} LBRACKET loop_statement RBRACKET {:semantic.actualScopeSubtract();:}
+else_statement ::= ELSE:token {:semantic.rememberElse(String.valueOf(token),tokenright+1);semantic.actualScopeSum();semantic.insertElse();:} LBRACKET loop_statement RBRACKET {:semantic.createElseExitTag();semantic.actualScopeSubtract();:}
                    | //Empty
                    | ELSE error RBRACKET {:print_error("Else wrong definition");add_error_count();:}
 ;

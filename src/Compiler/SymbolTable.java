@@ -7,6 +7,7 @@ package Compiler;
 
 import Compiler.SemanticSymbol.SemanticSymbol;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  *
@@ -36,12 +37,27 @@ public class SymbolTable {
     }
     
     public String getVariableType(String name, int scope){
+        Collections.reverse(symbolTable);
         for(SemanticSymbol semanticSymbol: symbolTable){
             if(semanticSymbol.getName().equals(name) 
                     /*&& semanticSymbol.getScope()==scope*/){
+                Collections.reverse(symbolTable);
                 return semanticSymbol.getType();
             }
         }
+        Collections.reverse(symbolTable);
         return null;
+    }
+    
+     public int getVariableScope(String name){
+        Collections.reverse(symbolTable);
+        for(SemanticSymbol semanticSymbol: symbolTable){
+            if(semanticSymbol.getName().equals(name)){
+                Collections.reverse(symbolTable);
+                return semanticSymbol.getScope();
+            }
+        }
+        Collections.reverse(symbolTable);
+        return -1;
     }
 }
