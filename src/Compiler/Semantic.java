@@ -21,6 +21,9 @@ import Compiler.SemanticSymbol.ReturnsFunctionSymbol;
 import Compiler.SemanticSymbol.SemanticSymbol;
 import Compiler.SemanticSymbol.VariablesSymbol;
 import Compiler.SemanticSymbol.WhileSymbol;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -616,8 +619,7 @@ class Semantic {
     public void assemblerFileCreation(){
         if(semanticErrors.getSemanticErrors().isEmpty()){
             assemblerCode = assemblerDataSegment + assemblerCode;
-            //TODO: Print file
-            System.out.print(assemblerCode);
+            createOutputFile();
         }
         print();
     }
@@ -798,5 +800,28 @@ class Semantic {
             System.out.println(ANSI_RED+se);
         }
         //System.out.println("STACK: " + semanticStack.getStack().size());
+    }
+    public void createOutputFile() {
+        String originatlPath = Main.tokensfileroute;
+        String[] arrOfStr = originatlPath.split("/");
+        
+        String fileWithExtension = arrOfStr[arrOfStr.length-1];
+        
+        String[] arrOfStr2 = fileWithExtension.split("\\.");
+        String fileName = arrOfStr2[0];
+        try {
+            File myObj = new File(fileName+".asm");
+            if (myObj.createNewFile()) {
+                System.out.println("File created: " + myObj.getName());
+                try (FileWriter myWriter = new FileWriter(myObj.getName())) {
+                    myWriter.write(assemblerCode);
+                }
+            } else {
+                System.out.println("File already exists.");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 }
