@@ -9,7 +9,7 @@ contract Contrato{
 		while(a>=5){
 			
 		}
-		a=5+5-a-1;
+		a= 1 + (2 - (a + (4 + 5) + 6)) + 7;
 		while(4>2){
 			continue;
 			if(3==5){

@@ -95,11 +95,11 @@ class Semantic {
     public void whilesSubtract() {
         numWhiles--;
         breakContinueScope.remove(breakContinueScope.size()-1);
-        assemblerCode += "\texitwhile"+actualScopeList.get(actualScopeList.size()-1)+":\n";
+        assemblerCode += "\nexitwhile"+actualScopeList.get(actualScopeList.size()-1)+":\n";
     }
     
     public void createElseExitTag(){
-        assemblerCode += "\texitelse"+actualScopeList.get(actualScopeList.size()-1)+":\n";
+        assemblerCode += "\nexitelse"+actualScopeList.get(actualScopeList.size()-1)+":\n";
     }
 
     // -------------------------- Semantic actions --------------------------
@@ -178,9 +178,11 @@ class Semantic {
     public void insertFunction(String name, int line){
         SemanticSymbol newSymbol = new FunctionSymbol(line, actualScopeList.get(actualScopeList.size() - 1), name,"FUNCTION");
         symbolTable.addSymbol(newSymbol);
-        assemblerCode += "\nglobal " + name + "\n";
+        assemblerCode += "\nsection .text"
+                        + "\n\tglobal _start" /*+ name*/ + "\n"
+                        + "\n_start:";
     }
-    public void insertFunctionReturns() {//TODO generate declaration code
+    public void insertFunctionReturns() {
         String type = "";
         for (SemanticRegistry sr : semanticStack.getStack()) {
             if (sr instanceof SR_Type) {
@@ -199,7 +201,7 @@ class Semantic {
         semanticStack.pop();
     }
 
-    public void insertFunctionReturn() {//TODO generate declaration code
+    public void insertFunctionReturn() {
         String name = "";
         String value = "";
         String type = "";
@@ -249,7 +251,6 @@ class Semantic {
         boolean response = validateBooleanExpression("if");
         if (response) {
             while (!(semanticStack.getLastElement() instanceof SR_If)) {
-                //TODO Generate code of if
                 semanticStack.pop();
             }
             SR_If sr = (SR_If) semanticStack.pop();
@@ -261,7 +262,6 @@ class Semantic {
             jmpElseScope.add(scope);
         } else {
             while (!(semanticStack.getLastElement() instanceof SR_If)) {
-                //TODO Generate code of if
                 semanticStack.pop();
             }
             SR_If sr = (SR_If) semanticStack.pop();
@@ -276,7 +276,7 @@ class Semantic {
         SemanticSymbol newSymbol = new ElseSymbol(line, scope, name);
         symbolTable.addSymbol(newSymbol);
         assemblerCode += "\tjmp exitelse"+scope+"\n"
-                    + "\telse"+jmpElseScope.remove(jmpElseScope.size()-1)+":\n";
+                    + "\nelse"+jmpElseScope.remove(jmpElseScope.size()-1)+":\n";
     }
 
     public void insertBreakContinue(String name, int line) {
@@ -330,12 +330,13 @@ class Semantic {
 
     }
 
-    public void insertVariableDefinition() {//TODO PARENTESISSISISIS
+    public void insertVariableDefinition() {
         boolean endExpression = false;
         boolean isExpressionValid = true;
         ArrayList<SemanticRegistry> tmpExpression = new ArrayList<>();
         ArrayList<SemanticRegistry> resExpression = new ArrayList<>();
         ArrayList<SemanticRegistry> tmpPrecedenceStack = new ArrayList<>();
+        ArrayList<String> tmpOperatorsStack = new ArrayList<>();
 
         while (!endExpression) {
             SemanticRegistry lastElement = semanticStack.pop();
@@ -349,35 +350,10 @@ class Semantic {
         }
 
         Collections.reverse(tmpExpression);
-
-        System.out.println("--------------- tmpExpression ---------------");
-        System.out.println("--------------- " + String.valueOf(resExpression.size()) + " ---------------");
-        int cont = 0;
-        for (SemanticRegistry sr : tmpExpression) {
-            if (sr instanceof SR_DO) {
-                SR_DO aaaaaa = (SR_DO) sr;
-                System.out.println("--------------- " + aaaaaa.getValue() + " " + cont + " ---------------");
-            } else {
-                SR_Operator aaaaaa = (SR_Operator) sr;
-                System.out.println("--------------- " + aaaaaa.getValue() + " " + cont + " ---------------");
-            }
-            cont++;
-        }
+        
         boolean lastHasParenthesis = false;
         while (tmpExpression.size() >= 2) {
-            int contRes = 0;
-            for (SemanticRegistry sr : resExpression) {
-                if (sr instanceof SR_DO) {
-                    SR_DO aaaaaa = (SR_DO) sr;
-                    System.out.println("-----RES" + contRes + "------- " + aaaaaa.getValue() + " ---------------");
-                } else {
-                    SR_Operator aaaaaa = (SR_Operator) sr;
-                    System.out.println("-----RES" + contRes + "------- " + aaaaaa.getValue() + " ---------------");
-                }
-                contRes++;
-            }
             int lastIndex = tmpExpression.size() - 1;
-            System.out.println("/////////////// " + String.valueOf(lastIndex) + " ///////////////");
             SemanticRegistry lastDO1;
             SR_Operator lastOperator;
             SemanticRegistry lastDO2;
@@ -393,6 +369,7 @@ class Semantic {
             }
 
             if (operator != null && operator.getValue().equals("(") && tmpPrecedenceStack.size() > 0) {
+                tmpOperatorsStack.add("(");
                 hasParenthesisPrecedence = true;
                 lastHasParenthesis = true;
                 tmpExpression.remove(lastIndex);
@@ -423,28 +400,38 @@ class Semantic {
                 while (lastDO1 instanceof SR_Operator) {
                     SR_Operator tmpDO1 = (SR_Operator) lastDO1;
 
-                    System.out.println("++++++++++++ " + tmpDO1.getValue() + " ++++++++++++");
                     lastIndex--;
                     if (tmpDO1.getType().equals("ARITHMETIC")) {
                         isFirstOperator = true;
                         break;
                     } else if (tmpDO1.getValue().equals("(")) {
                         lastHasParenthesis = true;
+                        tmpOperatorsStack.add("(");
+                    }
+                    else if (tmpDO1.getValue().equals(")")) {
+                        tmpOperatorsStack.add(")");
                     }
                     lastDO1 = tmpExpression.remove(lastIndex);
                 }
 
                 if (isFirstOperator) {
                     int lastIndexResExpression = resExpression.size() - 1;
-                    System.out.println("@@@@@@@@@@@@@@@@ " + lastIndex + " @@@@@@@@@@@@@@@@");
-                    System.out.println("@@@@@@@@@@@@@@@@ " + lastIndexResExpression + " @@@@@@@@@@@@@@@@");
 
                     lastOperator = (SR_Operator) lastDO1;
                     lastDO1 = tmpExpression.remove(lastIndex);
                     while (lastDO1 instanceof SR_Operator) {
+                        if (((SR_Operator)lastDO1).getValue().equals("(")) {
+                            tmpOperatorsStack.add("(");
+                        }
+                        else if (((SR_Operator)lastDO1).getValue().equals(")")) {
+                            tmpOperatorsStack.add(")");
+                        }
+                        else{
+                            tmpOperatorsStack.add(lastOperator.getValue());
+                        }
                         lastIndex--;
                         lastDO1 = tmpExpression.remove(lastIndex);
-                        validateExpression = false;
+                        validateExpression = false;                        
                     }
 
                     if (validateExpression) {
@@ -456,42 +443,34 @@ class Semantic {
                         lastDO2 = (SR_DO) resExpression.remove(lastIndexResExpression);
                     } else {
                         tmpExpression.add(lastDO1);
-                        resExpression.add(lastOperator);
+                        resExpression.add(lastOperator);                        
                         lastDO2 = null;
 
                         while (resExpression.size() > 0) {
                             tmpPrecedenceStack.add(resExpression.remove(1));
                             tmpPrecedenceStack.add(resExpression.remove(0));
                         }
-
-                        System.out.println("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                        int a = 0;
-                        for (SemanticRegistry sr : tmpPrecedenceStack) {
-                            if (sr instanceof SR_DO) {
-                                SR_DO aaaaaa = (SR_DO) sr;
-                                System.out.println("-----PRE" + a + "------- " + aaaaaa.getValue() + " ---------------");
-                            } else {
-                                SR_Operator aaaaaa = (SR_Operator) sr;
-                                System.out.println("-----PRE" + a + "------- " + aaaaaa.getValue() + " ---------------");
-                            }
-                            a++;
-                        }
-                        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
                         resExpression.clear();
                     }
                 } else {
-                    System.out.println("***");
                     lastOperator = (SR_Operator) tmpExpression.remove(lastIndex - 1);
 
                     lastIndex -= 2;
                     lastDO2 = (SR_DO) lastDO1;
                     lastDO1 = tmpExpression.remove(lastIndex);
 
+                        
+                    tmpOperatorsStack.add(lastOperator.getValue());
+                        
                     while (lastDO1 instanceof SR_Operator) {
                         validateExpression = false;
                         SR_Operator tmpDO1 = (SR_Operator) lastDO1;
-
-                        System.out.println("%%%%%%%%%%%% " + tmpDO1.getValue() + " %%%%%%%%%%%%");
+                        if (tmpDO1.getValue().equals("(")) {
+                            tmpOperatorsStack.add("(");
+                        }
+                        else if (tmpDO1.getValue().equals(")")) {
+                            tmpOperatorsStack.add(")");
+                        }
 
                         lastIndex--;
                         lastDO1 = tmpExpression.remove(lastIndex);
@@ -501,11 +480,11 @@ class Semantic {
                         tmpPrecedenceStack.add(lastOperator);
                         tmpPrecedenceStack.add(lastDO2);
                     }
+                    else
+                        tmpOperatorsStack.remove(tmpOperatorsStack.size()-1);
                     lastDO1 = (SR_DO) lastDO1;
                 }
             }
-
-            System.out.println("\n");
 
             if (validateExpression) {
                 ArrayList<SemanticRegistry> expressionValidated = validateExpression((SR_DO) lastDO1, lastOperator, (SR_DO) lastDO2, hasParenthesisPrecedence);
@@ -514,6 +493,11 @@ class Semantic {
                         resExpression.addAll(0, expressionValidated);
                     } else {
                         resExpression.addAll(expressionValidated);
+                    }
+                    for(SemanticRegistry sr: expressionValidated){
+                        if(sr instanceof SR_Operator){
+                            tmpOperatorsStack.add(((SR_Operator)sr).getValue());
+                        }
                     }
                 } else {
                     tmpExpression = new ArrayList<>();
@@ -534,6 +518,11 @@ class Semantic {
                 ArrayList<SemanticRegistry> expressionValidated = validateExpression((SR_DO) lastDO1, lastOperator, (SR_DO) lastDO2, true);
                 if (expressionValidated != null) {
                     resExpression.addAll(0, expressionValidated);
+                    for(SemanticRegistry sr: expressionValidated){
+                        if(sr instanceof SR_Operator){
+                            tmpOperatorsStack.add(((SR_Operator)sr).getValue());
+                        }
+                    }
                 } else {
                     isExpressionValid = false;
                 }
@@ -546,12 +535,74 @@ class Semantic {
             if (resExpression.size() == 0) {
                 resExpression = tmpExpression;
             }
+            
+            //TODO DELETE
+            /*System.out.println("\n\n");
+            for (SemanticRegistry sr : resExpression) {
+                if (sr instanceof SR_DO) {
+                    SR_DO aaaaaa = (SR_DO) sr;
+                    System.out.println("--------------- " + aaaaaa.getValue() + " ---------------");
+                } else {
+                    SR_Operator aaaaaa = (SR_Operator) sr;
+                    System.out.println("--------------- " + aaaaaa.getValue() + " ---------------");
+                }
+            }
+            
+            
+            //TODO DELETE
+            System.out.println("\n\n");
+            int cont = 0;
+            for (String operator : tmpOperatorsStack) {
+                System.out.println("-----OP------- " + operator + " " + cont + " ------OP-------");
+                cont++;
+            }*/
+            
+            //Apply morgan law
+            Collections.reverse(tmpOperatorsStack);
+            ArrayList<String> finalOperators = new ArrayList<>();
+            int parenthesisScope = 0;
+            boolean reverseOperators = false;
+            for (String operator : tmpOperatorsStack) {
+                if(operator.equals("(")){
+                    parenthesisScope++;
+                }
+                else if(operator.equals(")")){
+                     parenthesisScope--;
+                }else{
+                    if(parenthesisScope==0){
+                        finalOperators.add(operator);
+                        reverseOperators = false;
+                        continue;
+                    }
+                    
+                    if(reverseOperators){
+                        if(operator.equals("-"))
+                            finalOperators.add("+");
+                        else
+                            finalOperators.add("-");
+                    }else{
+                       finalOperators.add(operator);
+                       if(operator.equals("-"))
+                            reverseOperators = true; 
+                    }
+                    
+                }
+            }
+            
+            //TODO DELETE
+            /*System.out.println("\n\n");
+            cont = 0;
+            for (String operator : finalOperators) {
+                System.out.println("-----OPFINAL------- " + operator + " " + cont + " ------OPFINAL-------");
+                cont++;
+            }*/
 
             //Try to reduce with constant folding
             boolean expressionReduced = true;
             int lastResult = 0;
             String lastOperator = "+";
             Collections.reverse(resExpression);
+            int index = 0;
             for (SemanticRegistry sr : resExpression) {
                 if (sr instanceof SR_DO) {
                     SR_DO tmp = (SR_DO) sr;
@@ -566,7 +617,8 @@ class Semantic {
                         break;
                     }
                 } else {
-                    lastOperator = ((SR_Operator) sr).getValue();
+                    lastOperator = finalOperators.get(index);//((SR_Operator) sr).getValue();
+                    index++;
                 }
             }
 
@@ -574,8 +626,18 @@ class Semantic {
                 SR_DO newExpression = new SR_DO("CONSTANT", "int", String.valueOf(lastResult), resExpression.get(0).getLine());
                 resExpression = new ArrayList<SemanticRegistry>(Arrays.asList(newExpression));
             }
+            else{
+                for (int i = 0; i< resExpression.size()-1 ; i++) {
+                     if (resExpression.get(i) instanceof SR_Operator) {
+                         SR_Operator newOperator = (SR_Operator)resExpression.get(i);
+                         newOperator.setValue(finalOperators.remove(0));
+                         resExpression.set(i, newOperator);
+                     }
+                }
+            }
 
-            System.out.println("\n\n");
+            //TODO DELETE
+            /*System.out.println("\n\n");
             for (SemanticRegistry sr : resExpression) {
                 if (sr instanceof SR_DO) {
                     SR_DO aaaaaa = (SR_DO) sr;
@@ -584,7 +646,7 @@ class Semantic {
                     SR_Operator aaaaaa = (SR_Operator) sr;
                     System.out.println("--------------- " + aaaaaa.getValue() + " ---------------");
                 }
-            }
+            }*/
 
             String variableName = variable.getValue();
             variable.setConstantType(symbolTable.getVariableType(variableName, actualScopeList.get(actualScopeList.size() - 1)));
@@ -655,7 +717,7 @@ class Semantic {
                                         + possibleJumps.get(operator.getValue()) +" else"+scope+"\n";
                         }
                         else{
-                            assemblerCode += "\n\t"+tag +scope + ":\n"
+                            assemblerCode += "\n"+tag +scope + ":\n"
                                         + "\tcmp "+lastDO1.getValue()+scope1+", "
                                         + lastDO2.getValue()+scope2 + "\n\t"
                                         + possibleJumps.get(operator.getValue()) +" exit"+tag+scope+"\n";
@@ -696,7 +758,7 @@ class Semantic {
                                      + "\tje else"+scope+"\n";
                         }
                         else{
-                            assemblerCode += "\n\t"+tag +scope + ":\n"
+                            assemblerCode += "\n"+tag +scope + ":\n"
                                         + "\tcmp "+"0, "
                                         + value+scope1 + "\n"
                                         + "\tje exit"+tag+scope+"\n";

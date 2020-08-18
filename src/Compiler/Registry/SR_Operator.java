@@ -26,4 +26,8 @@ public class SR_Operator extends SemanticRegistry{
     public String getType() {
         return type;
     }
+    
+    public void setValue(String value) {
+       this.value = value;
+    }
 }
